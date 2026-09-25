@@ -1,0 +1,247 @@
+{
+  "dataset": {
+    "train_file": "C:\\Users\\Administrator\\Desktop\\PACT\\data\\train.jsonl",
+    "eval_file": "C:\\Users\\Administrator\\Desktop\\PACT\\data\\eval.jsonl",
+    "train_sha256": "beadbb9b81837f7c339e090cd210ce91f65a55f2a3ada1ce9b623765b8d6fe2e",
+    "eval_sha256": "8e9e48b8de5206593912ae01ddc95bd77e40ad2ecf4c9292c1711290eca0d896",
+    "train_rows": 2676,
+    "eval_rows": 324,
+    "manifest_checked": true,
+    "train_families": 1338,
+    "family_sizes": {
+      "2": 1338
+    },
+    "train_source_families": 34,
+    "eval_source_families": 6,
+    "separation_checked": true
+  },
+  "groups": 1338,
+  "contrastive_pairs": 1338,
+  "unpaired_or_skipped": {},
+  "evidence_ablation": {
+    "records": 2676,
+    "with_certificate": 2676,
+    "changed_slot_known": 2676,
+    "ablation_built": 2676,
+    "failures": []
+  },
+  "holdout_rows": 324,
+  "memory_estimate": {
+    "rows_per_micro_batch": 10,
+    "tokens_per_micro_batch": 20480,
+    "weights_gib": 16.76,
+    "optimizer_gib": 0.32,
+    "activations_gib": 6.57,
+    "estimated_peak_gib": 23.65,
+    "assumes": {
+      "parameters": 9000000000.0,
+      "layers": 36,
+      "hidden": 3584,
+      "gradient_checkpointing": true
+    },
+    "note": "rough estimate; the measured peak is in train_report.json"
+  },
+  "config": {
+    "output_dir": ".cache/runs/pact-9b",
+    "data": {
+      "data_root": "",
+      "train_file": "data/train.jsonl",
+      "eval_file": "data/eval.jsonl",
+      "manifest_file": "data/manifest.json",
+      "view_cache": ".cache/views",
+      "max_length": 2048,
+      "permutation_views": 1,
+      "necessity_views": true,
+      "necessity_drop": "changed",
+      "inner_holdout_families": 4,
+      "split_seed": 17,
+      "public_mix": [],
+      "verify_manifest": true,
+      "limit_pairs": 0
+    },
+    "model": {
+      "model_id": "Qwen/Qwen3.5-9B",
+      "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "dtype": "bfloat16",
+      "device": "auto",
+      "device_map": "single",
+      "attn_implementation": "sdpa",
+      "load_in_4bit": false,
+      "bnb_compute_dtype": "bfloat16",
+      "lora_rank": 16,
+      "lora_alpha": 32,
+      "lora_dropout": 0.05,
+      "use_rslora": true,
+      "use_dora": false,
+      "target_scope": ".language_model.",
+      "target_suffixes": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "gradient_checkpointing": true,
+      "trust_remote_code": false
+    },
+    "loss": {
+      "ce_weight": 1.0,
+      "cf_weight": 0.5,
+      "cf_margin": 2.0,
+      "pcr_weight": 0.5,
+      "nr_weight": 0.2,
+      "nr_margin": 0.0,
+      "nr_entropy_weight": 0.0,
+      "nr_entropy_margin": 0.0,
+      "ordinal_emd_weight": 0.3,
+      "ordinal_smoothing_tau": 0.0,
+      "label_smoothing": 0.0,
+      "reg_warmup_frac": 0.1
+    },
+    "optim": {
+      "epochs": 2.0,
+      "max_steps": 0,
+      "learning_rate": 5e-05,
+      "lora_b_multiplier": 8.0,
+      "weight_decay": 0.0,
+      "warmup_frac": 0.1,
+      "scheduler": "cosine",
+      "groups_per_batch": 2,
+      "grad_accum": 2,
+      "perm_view_prob": 1.0,
+      "necessity_prob": 1.0,
+      "max_grad_norm": 1.0,
+      "seed": 17,
+      "length_bucket_groups": 64,
+      "eval_every_frac": 0.25,
+      "save_every_frac": 0.5,
+      "keep_checkpoints": 2,
+      "log_every": 10
+    },
+    "evaluation": {
+      "permutation_ensemble": 4,
+      "rows_per_batch": 8,
+      "ece_bins": 15,
+      "score_base_model": true,
+      "holdout_limit": 0,
+      "calibrate": true,
+      "calibration_model": "contextual"
+    },
+    "release": {
+      "results_dir": "results",
+      "primary_run": "pact_full",
+      "selection": "inner_nll",
+      "save_pth": true,
+      "merge_full_model": false,
+      "copy_rows": true,
+      "figures": true
+    },
+    "seeds": [
+      17
+    ],
+    "runs": [
+      {
+        "name": "pact_full",
+        "description": "All four PACT terms, LoRA+ and rsLoRA, contextual temperature.",
+        "overrides": {},
+        "seeds": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "name": "nimble_recipe",
+        "description": "Published Nimble recipe inside this harness: plain candidate cross-entropy, one epoch, linear schedule, no extra views.",
+        "overrides": {
+          "loss.cf_weight": 0.0,
+          "loss.pcr_weight": 0.0,
+          "loss.nr_weight": 0.0,
+          "loss.ordinal_emd_weight": 0.0,
+          "data.permutation_views": 0,
+          "data.necessity_views": false,
+          "model.use_rslora": false,
+          "optim.lora_b_multiplier": 1.0,
+          "optim.epochs": 1.0,
+          "optim.scheduler": "linear"
+        },
+        "seeds": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "name": "ce_only",
+        "description": "Same optimiser and schedule as PACT, cross-entropy objective only.",
+        "overrides": {
+          "loss.cf_weight": 0.0,
+          "loss.pcr_weight": 0.0,
+          "loss.nr_weight": 0.0,
+          "loss.ordinal_emd_weight": 0.0,
+          "data.permutation_views": 0,
+          "data.necessity_views": false
+        },
+        "seeds": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "name": "no_cf",
+        "description": "Ablation: drop the counterfactual difference-in-differences margin.",
+        "overrides": {
+          "loss.cf_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_pcr",
+        "description": "Ablation: drop permutation consistency (keeps the permuted views as plain augmentation).",
+        "overrides": {
+          "loss.pcr_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_nr",
+        "description": "Ablation: drop the evidence-necessity term.",
+        "overrides": {
+          "loss.nr_weight": 0.0,
+          "data.necessity_views": false
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_emd",
+        "description": "Ablation: drop the ordinal transport cost on Score fields.",
+        "overrides": {
+          "loss.ordinal_emd_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_perm_views",
+        "description": "Ablation: no permuted encodings at all (isolates augmentation from the consistency term).",
+        "overrides": {
+          "data.permutation_views": 0,
+          "loss.pcr_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      }
+    ]
+  }
+}

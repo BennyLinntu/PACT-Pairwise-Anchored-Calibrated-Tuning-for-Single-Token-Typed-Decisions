@@ -1,0 +1,62 @@
+{
+  "output_dir": ".cache/runs/smoke",
+  "seeds": [
+    17
+  ],
+  "data": {
+    "max_length": 4096,
+    "permutation_views": 1,
+    "necessity_views": true,
+    "inner_holdout_families": 1,
+    "limit_pairs": 24,
+    "split_seed": 17
+  },
+  "model": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "",
+    "dtype": "float32",
+    "device": "cpu",
+    "attn_implementation": "eager",
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "use_rslora": true,
+    "target_scope": "",
+    "gradient_checkpointing": false
+  },
+  "loss": {
+    "cf_weight": 0.5,
+    "pcr_weight": 0.5,
+    "nr_weight": 0.2,
+    "ordinal_emd_weight": 0.3,
+    "reg_warmup_frac": 0.1
+  },
+  "optim": {
+    "epochs": 1.0,
+    "max_steps": 4,
+    "learning_rate": 0.0001,
+    "groups_per_batch": 1,
+    "grad_accum": 1,
+    "eval_every_frac": 1.0,
+    "save_every_frac": 1.0,
+    "log_every": 1,
+    "seed": 17
+  },
+  "evaluation": {
+    "permutation_ensemble": 2,
+    "rows_per_batch": 1,
+    "score_base_model": false,
+    "calibrate": false,
+    "calibration_model": "scalar",
+    "holdout_limit": 12
+  },
+  "runs": [
+    {
+      "name": "smoke",
+      "description": "Tiny CPU end-to-end check of the whole pipeline: 24 pairs, 4 steps, a 135M model. Numbers are meaningless; only the plumbing is under test.",
+      "overrides": {},
+      "seeds": [
+        17
+      ]
+    }
+  ]
+}

@@ -1,0 +1,875 @@
+{
+  "run": "ce_only",
+  "seed": 18,
+  "description": "Same optimiser and schedule as PACT, cross-entropy objective only.",
+  "config": {
+    "output_dir": ".cache/runs/pact-9b",
+    "data": {
+      "data_root": "",
+      "train_file": "data/train.jsonl",
+      "eval_file": "data/eval.jsonl",
+      "manifest_file": "data/manifest.json",
+      "view_cache": ".cache/views",
+      "max_length": 2048,
+      "permutation_views": 0,
+      "necessity_views": false,
+      "necessity_drop": "changed",
+      "inner_holdout_families": 4,
+      "split_seed": 17,
+      "public_mix": [],
+      "verify_manifest": true,
+      "limit_pairs": 0
+    },
+    "model": {
+      "model_id": "Qwen/Qwen3.5-9B",
+      "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "dtype": "bfloat16",
+      "device": "auto",
+      "device_map": "single",
+      "attn_implementation": "sdpa",
+      "load_in_4bit": false,
+      "bnb_compute_dtype": "bfloat16",
+      "lora_rank": 16,
+      "lora_alpha": 32,
+      "lora_dropout": 0.05,
+      "use_rslora": true,
+      "use_dora": false,
+      "target_scope": ".language_model.",
+      "target_suffixes": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "gradient_checkpointing": true,
+      "trust_remote_code": false
+    },
+    "loss": {
+      "ce_weight": 1.0,
+      "cf_weight": 0.0,
+      "cf_margin": 2.0,
+      "pcr_weight": 0.0,
+      "nr_weight": 0.0,
+      "nr_margin": 0.0,
+      "nr_entropy_weight": 0.0,
+      "nr_entropy_margin": 0.0,
+      "ordinal_emd_weight": 0.0,
+      "ordinal_smoothing_tau": 0.0,
+      "label_smoothing": 0.0,
+      "reg_warmup_frac": 0.1
+    },
+    "optim": {
+      "epochs": 2.0,
+      "max_steps": 0,
+      "learning_rate": 5e-05,
+      "lora_b_multiplier": 8.0,
+      "weight_decay": 0.0,
+      "warmup_frac": 0.1,
+      "scheduler": "cosine",
+      "groups_per_batch": 2,
+      "grad_accum": 2,
+      "perm_view_prob": 1.0,
+      "necessity_prob": 1.0,
+      "max_grad_norm": 1.0,
+      "seed": 18,
+      "length_bucket_groups": 64,
+      "eval_every_frac": 0.25,
+      "save_every_frac": 0.5,
+      "keep_checkpoints": 2,
+      "log_every": 10
+    },
+    "evaluation": {
+      "permutation_ensemble": 4,
+      "rows_per_batch": 8,
+      "ece_bins": 15,
+      "score_base_model": true,
+      "holdout_limit": 0,
+      "calibrate": true,
+      "calibration_model": "contextual"
+    },
+    "release": {
+      "results_dir": "results",
+      "primary_run": "pact_full",
+      "selection": "inner_nll",
+      "save_pth": true,
+      "merge_full_model": false,
+      "copy_rows": true,
+      "figures": true
+    },
+    "seeds": [
+      17
+    ],
+    "runs": [
+      {
+        "name": "pact_full",
+        "description": "All four PACT terms, LoRA+ and rsLoRA, contextual temperature.",
+        "overrides": {},
+        "seeds": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "name": "nimble_recipe",
+        "description": "Published Nimble recipe inside this harness: plain candidate cross-entropy, one epoch, linear schedule, no extra views.",
+        "overrides": {
+          "loss.cf_weight": 0.0,
+          "loss.pcr_weight": 0.0,
+          "loss.nr_weight": 0.0,
+          "loss.ordinal_emd_weight": 0.0,
+          "data.permutation_views": 0,
+          "data.necessity_views": false,
+          "model.use_rslora": false,
+          "optim.lora_b_multiplier": 1.0,
+          "optim.epochs": 1.0,
+          "optim.scheduler": "linear"
+        },
+        "seeds": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "name": "ce_only",
+        "description": "Same optimiser and schedule as PACT, cross-entropy objective only.",
+        "overrides": {
+          "loss.cf_weight": 0.0,
+          "loss.pcr_weight": 0.0,
+          "loss.nr_weight": 0.0,
+          "loss.ordinal_emd_weight": 0.0,
+          "data.permutation_views": 0,
+          "data.necessity_views": false
+        },
+        "seeds": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "name": "no_cf",
+        "description": "Ablation: drop the counterfactual difference-in-differences margin.",
+        "overrides": {
+          "loss.cf_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_pcr",
+        "description": "Ablation: drop permutation consistency (keeps the permuted views as plain augmentation).",
+        "overrides": {
+          "loss.pcr_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_nr",
+        "description": "Ablation: drop the evidence-necessity term.",
+        "overrides": {
+          "loss.nr_weight": 0.0,
+          "data.necessity_views": false
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_emd",
+        "description": "Ablation: drop the ordinal transport cost on Score fields.",
+        "overrides": {
+          "loss.ordinal_emd_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      },
+      {
+        "name": "no_perm_views",
+        "description": "Ablation: no permuted encodings at all (isolates augmentation from the consistency term).",
+        "overrides": {
+          "data.permutation_views": 0,
+          "loss.pcr_weight": 0.0
+        },
+        "seeds": [
+          17
+        ]
+      }
+    ]
+  },
+  "views": {
+    "views": {
+      "dev_calib/primary": 226,
+      "dev_select/primary": 116,
+      "train/primary": 2334
+    },
+    "primary_kinds": {
+      "dev_calib/choice": 64,
+      "dev_calib/noul": 60,
+      "dev_calib/score": 102,
+      "dev_select/choice": 26,
+      "dev_select/noul": 32,
+      "dev_select/score": 58,
+      "train/choice": 766,
+      "train/noul": 796,
+      "train/score": 772
+    },
+    "max_tokens": 1098
+  },
+  "device_env": "1",
+  "train": {
+    "plan": {
+      "train_groups": 1167,
+      "micro_batches_per_epoch": 584,
+      "optimizer_steps_per_epoch": 292,
+      "total_steps": 584,
+      "warmup_steps": 58,
+      "effective_pairs_per_step": 4,
+      "memory_estimate": {
+        "rows_per_micro_batch": 4,
+        "tokens_per_micro_batch": 8192,
+        "weights_gib": 16.76,
+        "optimizer_gib": 0.32,
+        "activations_gib": 2.63,
+        "estimated_peak_gib": 19.71,
+        "assumes": {
+          "parameters": 9000000000.0,
+          "layers": 36,
+          "hidden": 3584,
+          "gradient_checkpointing": true
+        },
+        "note": "rough estimate; the measured peak is in train_report.json"
+      }
+    },
+    "steps": 584,
+    "best": {
+      "step": 584,
+      "nll": 0.11247951338272792,
+      "accuracy": 0.9741379310344828
+    },
+    "wall_seconds": 1825.0,
+    "logit_mode": "logits_to_keep",
+    "peak_gpu_gib": 21.816115379333496
+  },
+  "dev_history": [
+    {
+      "step": 146,
+      "summary": {
+        "all": {
+          "count": 116,
+          "correct": 66,
+          "accuracy": 0.5689655172413793,
+          "nll": 0.8340644273311142,
+          "brier": 0.5366662788197525,
+          "ece": 0.16007729815582233,
+          "mean_confidence": 0.6791766435662557,
+          "expected_score_mae": 0.6241717205189146,
+          "level_mae": 0.6896551724137931,
+          "pair_accuracy": 0.22413793103448276,
+          "pairs": 58,
+          "aurc": 0.3515847232681119
+        },
+        "choice": {
+          "count": 26,
+          "correct": 20,
+          "accuracy": 0.7692307692307693,
+          "nll": 0.7352575290778673,
+          "brier": 0.3741277759100077,
+          "ece": 0.2423394580739554,
+          "mean_confidence": 0.6619154193381758,
+          "pair_accuracy": 0.6153846153846154,
+          "pairs": 13,
+          "aurc": 0.09106542282977924
+        },
+        "noul": {
+          "count": 32,
+          "correct": 20,
+          "accuracy": 0.625,
+          "nll": 0.6271758887017707,
+          "brier": 0.44317799620761955,
+          "ece": 0.17387377439594165,
+          "mean_confidence": 0.7403903404282998,
+          "pair_accuracy": 0.25,
+          "pairs": 16,
+          "aurc": 0.24341074135676022
+        },
+        "score": {
+          "count": 58,
+          "correct": 26,
+          "accuracy": 0.4482758620689655,
+          "nll": 0.992502575447035,
+          "brier": 0.6611081084618494,
+          "ece": 0.22664842787374057,
+          "mean_confidence": 0.6531413596066812,
+          "expected_score_mae": 0.6241717205189146,
+          "level_mae": 0.6896551724137931,
+          "pair_accuracy": 0.034482758620689655,
+          "pairs": 29,
+          "aurc": 0.6514469138445476
+        },
+        "by_domain": {
+          "public_services": {
+            "count": 50,
+            "accuracy": 0.54
+          },
+          "software": {
+            "count": 66,
+            "accuracy": 0.5909090909090909
+          }
+        }
+      }
+    },
+    {
+      "step": 292,
+      "summary": {
+        "all": {
+          "count": 116,
+          "correct": 93,
+          "accuracy": 0.8017241379310345,
+          "nll": 0.6196240814103147,
+          "brier": 0.31046388233798844,
+          "ece": 0.09481583759326254,
+          "mean_confidence": 0.7562216848037931,
+          "expected_score_mae": 0.5597754904474971,
+          "level_mae": 0.5,
+          "pair_accuracy": 0.7068965517241379,
+          "pairs": 58,
+          "aurc": 0.05505696127234436
+        },
+        "choice": {
+          "count": 26,
+          "correct": 21,
+          "accuracy": 0.8076923076923077,
+          "nll": 0.5966622644059213,
+          "brier": 0.31789687371913533,
+          "ece": 0.14168193747402028,
+          "mean_confidence": 0.7018816829886992,
+          "pair_accuracy": 0.6153846153846154,
+          "pairs": 13,
+          "aurc": 0.08071098026379822
+        },
+        "noul": {
+          "count": 32,
+          "correct": 31,
+          "accuracy": 0.96875,
+          "nll": 0.2060942217066971,
+          "brier": 0.09680338876677022,
+          "ece": 0.1193031062031133,
+          "mean_confidence": 0.8494468937968868,
+          "pair_accuracy": 0.9375,
+          "pairs": 16,
+          "aurc": 0.006377358725671086
+        },
+        "score": {
+          "count": 58,
+          "correct": 41,
+          "accuracy": 0.7068965517241379,
+          "nll": 0.8580717150763488,
+          "brier": 0.42501350334435334,
+          "ece": 0.142143680355449,
+          "mean_confidence": 0.7291463978971284,
+          "expected_score_mae": 0.5597754904474971,
+          "level_mae": 0.5,
+          "pair_accuracy": 0.6206896551724138,
+          "pairs": 29,
+          "aurc": 0.09921861927376029
+        },
+        "by_domain": {
+          "public_services": {
+            "count": 50,
+            "accuracy": 0.58
+          },
+          "software": {
+            "count": 66,
+            "accuracy": 0.9696969696969697
+          }
+        }
+      }
+    },
+    {
+      "step": 438,
+      "summary": {
+        "all": {
+          "count": 116,
+          "correct": 110,
+          "accuracy": 0.9482758620689655,
+          "nll": 0.12850031686657112,
+          "brier": 0.07069197774324612,
+          "ece": 0.048799921996099394,
+          "mean_confidence": 0.9670258745974402,
+          "expected_score_mae": 0.025879915337765094,
+          "level_mae": 0.0,
+          "pair_accuracy": 0.9137931034482759,
+          "pairs": 58,
+          "aurc": 0.0038606564476034136
+        },
+        "choice": {
+          "count": 26,
+          "correct": 22,
+          "accuracy": 0.8461538461538461,
+          "nll": 0.3611437215945934,
+          "brier": 0.20445227534920912,
+          "ece": 0.13755655315402807,
+          "mean_confidence": 0.9443756170095331,
+          "pair_accuracy": 0.7692307692307693,
+          "pairs": 13,
+          "aurc": 0.022410159517182927
+        },
+        "noul": {
+          "count": 32,
+          "correct": 30,
+          "accuracy": 0.9375,
+          "nll": 0.12502122098246624,
+          "brier": 0.07575401726842516,
+          "ece": 0.04587053417772615,
+          "mean_confidence": 0.968388293438197,
+          "pair_accuracy": 0.875,
+          "pairs": 16,
+          "aurc": 0.007353921225671086
+        },
+        "score": {
+          "count": 58,
+          "correct": 58,
+          "accuracy": 1.0,
+          "nll": 0.02613139523489487,
+          "brier": 0.007937615630129444,
+          "ece": 0.02357224101667439,
+          "mean_confidence": 0.9764277589833257,
+          "expected_score_mae": 0.025879915337765094,
+          "level_mae": 0.0,
+          "pair_accuracy": 1.0,
+          "pairs": 29,
+          "aurc": 0.0
+        },
+        "by_domain": {
+          "public_services": {
+            "count": 50,
+            "accuracy": 0.9
+          },
+          "software": {
+            "count": 66,
+            "accuracy": 0.9848484848484849
+          }
+        }
+      }
+    },
+    {
+      "step": 584,
+      "summary": {
+        "all": {
+          "count": 116,
+          "correct": 113,
+          "accuracy": 0.9741379310344828,
+          "nll": 0.11247951338272792,
+          "brier": 0.06107694929797359,
+          "ece": 0.03814679063057268,
+          "mean_confidence": 0.9710240863219265,
+          "expected_score_mae": 0.026139486441060768,
+          "level_mae": 0.0,
+          "pair_accuracy": 0.9482758620689655,
+          "pairs": 58,
+          "aurc": 0.002981862285235694
+        },
+        "choice": {
+          "count": 26,
+          "correct": 24,
+          "accuracy": 0.9230769230769231,
+          "nll": 0.272684897387308,
+          "brier": 0.14664282776254323,
+          "ece": 0.0851025217422875,
+          "mean_confidence": 0.9626729735097519,
+          "pair_accuracy": 0.8461538461538461,
+          "pairs": 13,
+          "aurc": 0.017913118097064584
+        },
+        "noul": {
+          "count": 32,
+          "correct": 31,
+          "accuracy": 0.96875,
+          "nll": 0.1309135144329362,
+          "brier": 0.07445318809732289,
+          "ece": 0.04818910960928962,
+          "mean_confidence": 0.9706572424644295,
+          "pair_accuracy": 0.9375,
+          "pairs": 16,
+          "aurc": 0.004103879889692251
+        },
+        "score": {
+          "count": 58,
+          "correct": 58,
+          "accuracy": 1.0,
+          "nll": 0.030492823421939184,
+          "brier": 0.015339837545249651,
+          "ece": 0.02502991477192812,
+          "mean_confidence": 0.9749700852280718,
+          "expected_score_mae": 0.026139486441060768,
+          "level_mae": 0.0,
+          "pair_accuracy": 1.0,
+          "pairs": 29,
+          "aurc": 0.0
+        },
+        "by_domain": {
+          "public_services": {
+            "count": 50,
+            "accuracy": 0.96
+          },
+          "software": {
+            "count": 66,
+            "accuracy": 0.9848484848484849
+          }
+        }
+      }
+    },
+    {
+      "step": 584,
+      "summary": {
+        "all": {
+          "count": 116,
+          "correct": 113,
+          "accuracy": 0.9741379310344828,
+          "nll": 0.11247951338272792,
+          "brier": 0.06107694929797359,
+          "ece": 0.03814679063057268,
+          "mean_confidence": 0.9710240863219265,
+          "expected_score_mae": 0.026139486441060768,
+          "level_mae": 0.0,
+          "pair_accuracy": 0.9482758620689655,
+          "pairs": 58,
+          "aurc": 0.002981862285235694
+        },
+        "choice": {
+          "count": 26,
+          "correct": 24,
+          "accuracy": 0.9230769230769231,
+          "nll": 0.272684897387308,
+          "brier": 0.14664282776254323,
+          "ece": 0.0851025217422875,
+          "mean_confidence": 0.9626729735097519,
+          "pair_accuracy": 0.8461538461538461,
+          "pairs": 13,
+          "aurc": 0.017913118097064584
+        },
+        "noul": {
+          "count": 32,
+          "correct": 31,
+          "accuracy": 0.96875,
+          "nll": 0.1309135144329362,
+          "brier": 0.07445318809732289,
+          "ece": 0.04818910960928962,
+          "mean_confidence": 0.9706572424644295,
+          "pair_accuracy": 0.9375,
+          "pairs": 16,
+          "aurc": 0.004103879889692251
+        },
+        "score": {
+          "count": 58,
+          "correct": 58,
+          "accuracy": 1.0,
+          "nll": 0.030492823421939184,
+          "brier": 0.015339837545249651,
+          "ece": 0.02502991477192812,
+          "mean_confidence": 0.9749700852280718,
+          "expected_score_mae": 0.026139486441060768,
+          "level_mae": 0.0,
+          "pair_accuracy": 1.0,
+          "pairs": 29,
+          "aurc": 0.0
+        },
+        "by_domain": {
+          "public_services": {
+            "count": 50,
+            "accuracy": 0.96
+          },
+          "software": {
+            "count": 66,
+            "accuracy": 0.9848484848484849
+          }
+        }
+      }
+    }
+  ],
+  "adapter": "/vol/bennylin-solar/New/PACT/.cache/runs/pact-9b/ce_only/seed-18/best",
+  "calibration": {
+    "mode": "contextual",
+    "records": 226,
+    "nll_before": 0.8487260341644287,
+    "nll_after": 0.634543776512146,
+    "temperature_mean": 2.115786552429199,
+    "temperature_min": 1.9470417499542236,
+    "temperature_max": 2.3249263763427734,
+    "applied": true,
+    "ece_before": 0.15711920608190938,
+    "ece_after": 0.044920839957804666,
+    "accuracy_before": 0.7566371681415929,
+    "accuracy_after": 0.7566371681415929
+  },
+  "calibration_split": {
+    "rows": 226,
+    "accuracy": 0.7566371681415929
+  },
+  "holdout": {
+    "single": {
+      "summary": {
+        "all": {
+          "count": 324,
+          "correct": 245,
+          "accuracy": 0.7561728395061729,
+          "nll": 1.0440927008264216,
+          "brier": 0.4166767539610428,
+          "ece": 0.20442276270006002,
+          "mean_confidence": 0.950139184545265,
+          "expected_score_mae": 0.48614285476776165,
+          "level_mae": 0.5,
+          "pair_accuracy": 0.6358024691358025,
+          "pairs": 162,
+          "aurc": 0.07852567100798431
+        },
+        "choice": {
+          "count": 146,
+          "correct": 100,
+          "accuracy": 0.684931506849315,
+          "nll": 1.1482291585297228,
+          "brier": 0.5165126101007362,
+          "ece": 0.24078251643755127,
+          "mean_confidence": 0.9140874266201054,
+          "pair_accuracy": 0.5616438356164384,
+          "pairs": 73,
+          "aurc": 0.1241392922507694
+        },
+        "noul": {
+          "count": 114,
+          "correct": 108,
+          "accuracy": 0.9473684210526315,
+          "nll": 0.2253264168308855,
+          "brier": 0.09156386616342024,
+          "ece": 0.049328717472447395,
+          "mean_confidence": 0.9890160245055315,
+          "pair_accuracy": 0.8947368421052632,
+          "pairs": 57,
+          "aurc": 0.010208763421218861
+        },
+        "score": {
+          "count": 64,
+          "correct": 37,
+          "accuracy": 0.578125,
+          "nll": 2.2649588500578153,
+          "brier": 0.7680335385318824,
+          "ece": 0.39773834254809276,
+          "mean_confidence": 0.9631328861328103,
+          "expected_score_mae": 0.48614285476776165,
+          "level_mae": 0.5,
+          "pair_accuracy": 0.34375,
+          "pairs": 32,
+          "aurc": 0.2638832253488908
+        },
+        "by_domain": {
+          "commerce": {
+            "count": 58,
+            "accuracy": 0.9137931034482759
+          },
+          "education": {
+            "count": 70,
+            "accuracy": 0.5428571428571428
+          },
+          "media": {
+            "count": 44,
+            "accuracy": 0.6363636363636364
+          },
+          "public_services": {
+            "count": 106,
+            "accuracy": 0.8301886792452831
+          },
+          "supply_chain": {
+            "count": 30,
+            "accuracy": 0.7666666666666667
+          },
+          "travel": {
+            "count": 16,
+            "accuracy": 0.9375
+          }
+        }
+      }
+    },
+    "single_calibrated": {
+      "summary": {
+        "all": {
+          "count": 324,
+          "correct": 245,
+          "accuracy": 0.7561728395061729,
+          "nll": 0.6051622580068086,
+          "brier": 0.3445583937149978,
+          "ece": 0.12976847584679257,
+          "mean_confidence": 0.8714795489857806,
+          "expected_score_mae": 0.47199760736029656,
+          "level_mae": 0.5,
+          "pair_accuracy": 0.6358024691358025,
+          "pairs": 162,
+          "aurc": 0.07267673051826277
+        },
+        "choice": {
+          "count": 146,
+          "correct": 100,
+          "accuracy": 0.684931506849315,
+          "nll": 0.7157129590737874,
+          "brier": 0.41661127259113967,
+          "ece": 0.17728475627832674,
+          "mean_confidence": 0.8037934987842636,
+          "pair_accuracy": 0.5616438356164384,
+          "pairs": 73,
+          "aurc": 0.12220209593371369
+        },
+        "noul": {
+          "count": 114,
+          "correct": 108,
+          "accuracy": 0.9473684210526315,
+          "nll": 0.15177047793291967,
+          "brier": 0.08112155158203023,
+          "ece": 0.02611371879261863,
+          "mean_confidence": 0.9598372245595933,
+          "pair_accuracy": 0.8947368421052632,
+          "pairs": 57,
+          "aurc": 0.010680074402775904
+        },
+        "score": {
+          "count": 64,
+          "correct": 37,
+          "accuracy": 0.578125,
+          "nll": 1.160572579454378,
+          "brier": 0.6494346388281477,
+          "ece": 0.29037624139213714,
+          "mean_confidence": 0.8685012413921371,
+          "expected_score_mae": 0.47199760736029656,
+          "level_mae": 0.5,
+          "pair_accuracy": 0.34375,
+          "pairs": 32,
+          "aurc": 0.2649527543928023
+        },
+        "by_domain": {
+          "commerce": {
+            "count": 58,
+            "accuracy": 0.9137931034482759
+          },
+          "education": {
+            "count": 70,
+            "accuracy": 0.5428571428571428
+          },
+          "media": {
+            "count": 44,
+            "accuracy": 0.6363636363636364
+          },
+          "public_services": {
+            "count": 106,
+            "accuracy": 0.8301886792452831
+          },
+          "supply_chain": {
+            "count": 30,
+            "accuracy": 0.7666666666666667
+          },
+          "travel": {
+            "count": 16,
+            "accuracy": 0.9375
+          }
+        }
+      }
+    },
+    "ensemble": {
+      "summary": {
+        "all": {
+          "count": 324,
+          "correct": 259,
+          "accuracy": 0.7993827160493827,
+          "nll": 0.5143500258313052,
+          "brier": 0.28439164952962426,
+          "ece": 0.08998079852611396,
+          "mean_confidence": 0.8802687512059899,
+          "expected_score_mae": 0.3428909812867965,
+          "level_mae": 0.328125,
+          "pair_accuracy": 0.6666666666666666,
+          "pairs": 162,
+          "permutation_tv": 0.07563365814061328,
+          "permutation_flip_rate": 0.1111111111111111,
+          "aurc": 0.051547262409126715
+        },
+        "choice": {
+          "count": 146,
+          "correct": 103,
+          "accuracy": 0.7054794520547946,
+          "nll": 0.7042320383576529,
+          "brier": 0.39509596296127997,
+          "ece": 0.14858972056928432,
+          "mean_confidence": 0.829886183183731,
+          "pair_accuracy": 0.547945205479452,
+          "pairs": 73,
+          "permutation_tv": 0.08906321550902839,
+          "permutation_flip_rate": 0.13013698630136986,
+          "aurc": 0.1011039148896224
+        },
+        "noul": {
+          "count": 114,
+          "correct": 108,
+          "accuracy": 0.9473684210526315,
+          "nll": 0.16035969301601574,
+          "brier": 0.08916961351697154,
+          "ece": 0.021456801201233087,
+          "mean_confidence": 0.9607310854899033,
+          "pair_accuracy": 0.8947368421052632,
+          "pairs": 57,
+          "permutation_tv": 0.014972530313680505,
+          "permutation_flip_rate": 0.008771929824561403,
+          "aurc": 0.008693732531887195
+        },
+        "score": {
+          "count": 64,
+          "correct": 48,
+          "accuracy": 0.75,
+          "nll": 0.7117269650828085,
+          "brier": 0.3795866861611974,
+          "ece": 0.11738547101337624,
+          "mean_confidence": 0.8518804515635475,
+          "expected_score_mae": 0.3428909812867965,
+          "level_mae": 0.328125,
+          "pair_accuracy": 0.53125,
+          "pairs": 32,
+          "permutation_tv": 0.15305011433564028,
+          "permutation_flip_rate": 0.25,
+          "aurc": 0.12186289337226498
+        },
+        "by_domain": {
+          "commerce": {
+            "count": 58,
+            "accuracy": 0.9137931034482759
+          },
+          "education": {
+            "count": 70,
+            "accuracy": 0.6
+          },
+          "media": {
+            "count": 44,
+            "accuracy": 0.6363636363636364
+          },
+          "public_services": {
+            "count": 106,
+            "accuracy": 0.9245283018867925
+          },
+          "supply_chain": {
+            "count": 30,
+            "accuracy": 0.7666666666666667
+          },
+          "travel": {
+            "count": 16,
+            "accuracy": 0.9375
+          }
+        }
+      }
+    }
+  },
+  "holdout_examples": 324
+}

@@ -1,0 +1,23 @@
+# Caches / generated at run time
+.cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node / Electron build tooling (reinstall with `npm install` in desktop/)
+desktop/node_modules/
+desktop/dist/win-unpacked/
+desktop/dist/builder-debug.yml
+desktop/dist/*.blockmap
+
+# LaTeX intermediates (main.pdf is committed; these aren't)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+
+# OS noise
+.DS_Store
+Thumbs.db

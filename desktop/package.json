@@ -1,0 +1,51 @@
+{
+  "name": "pact-tetris",
+  "productName": "PACT Tetris",
+  "version": "1.0.0",
+  "description": "A from-scratch Tetris, playable by hand or handed to the PACT model.",
+  "main": "main.js",
+  "author": "PACT project",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac zip",
+    "dist:all": "electron-builder --win --mac zip"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.pact.tetris",
+    "productName": "PACT Tetris",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "app/**/*",
+      "!app/server.py"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "mac": {
+      "target": [{ "target": "zip", "arch": ["x64", "arm64"] }],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.games",
+      "identity": null
+    }
+  }
+}

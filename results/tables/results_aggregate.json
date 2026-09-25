@@ -1,0 +1,770 @@
+{
+  "single": {
+    "ce_only": {
+      "seeds": [
+        17,
+        18,
+        19
+      ],
+      "runs": 3,
+      "description": "Same optimiser and schedule as PACT, cross-entropy objective only.",
+      "accuracy": {
+        "mean": 0.8220164609053499,
+        "std": 0.059953918865569805,
+        "n": 3
+      },
+      "pair_accuracy": {
+        "mean": 0.7016460905349794,
+        "std": 0.06213855502280452,
+        "n": 3
+      },
+      "nll": {
+        "mean": 0.7597630747285132,
+        "std": 0.2956877127694378,
+        "n": 3
+      },
+      "brier": {
+        "mean": 0.30490754772931467,
+        "std": 0.10996919706676375,
+        "n": 3
+      },
+      "ece": {
+        "mean": 0.14258055047473608,
+        "std": 0.06419069517237751,
+        "n": 3
+      },
+      "expected_score_mae": {
+        "mean": 0.322342681901659,
+        "std": 0.15328406421297852,
+        "n": 3
+      }
+    },
+    "nimble_recipe": {
+      "seeds": [
+        17,
+        18,
+        19
+      ],
+      "runs": 3,
+      "description": "Published Nimble recipe inside this harness: plain candidate cross-entropy, one epoch, linear schedule, no extra views.",
+      "accuracy": {
+        "mean": 0.8518518518518517,
+        "std": 0.021383343303319504,
+        "n": 3
+      },
+      "pair_accuracy": {
+        "mean": 0.7098765432098766,
+        "std": 0.03854937036048394,
+        "n": 3
+      },
+      "nll": {
+        "mean": 0.4486206340248953,
+        "std": 0.10986839887377527,
+        "n": 3
+      },
+      "brier": {
+        "mean": 0.2364950437820915,
+        "std": 0.04238785287565286,
+        "n": 3
+      },
+      "ece": {
+        "mean": 0.09468209471861695,
+        "std": 0.033792236588086076,
+        "n": 3
+      },
+      "expected_score_mae": {
+        "mean": 0.31140688292047985,
+        "std": 0.02978822725173445,
+        "n": 3
+      }
+    },
+    "no_cf": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop the counterfactual difference-in-differences margin.",
+      "accuracy": {
+        "mean": 0.8425925925925926,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7160493827160493,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.4908445102644755,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.23482657363356546,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.11074363107970654,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.2841142575539861,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_emd": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop the ordinal transport cost on Score fields.",
+      "accuracy": {
+        "mean": 0.8425925925925926,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7037037037037037,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.38785708775930483,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.20829408295093768,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.05775229000125865,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.2815516719716413,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_nr": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop the evidence-necessity term.",
+      "accuracy": {
+        "mean": 0.808641975308642,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.6481481481481481,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.5451333280749816,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.28306764297161396,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.10325353215038857,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.34360584190542254,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_pcr": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop permutation consistency (keeps the permuted views as plain augmentation).",
+      "accuracy": {
+        "mean": 0.8765432098765432,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7962962962962963,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.5129834049041615,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.201371561643343,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.0748507581090689,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.13820264963200998,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_perm_views": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: no permuted encodings at all (isolates augmentation from the consistency term).",
+      "accuracy": {
+        "mean": 0.8487654320987654,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7407407407407407,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.5102371725958927,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.2356839649726411,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.08776992652386505,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.35566082922954756,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "pact_full": {
+      "seeds": [
+        17,
+        18,
+        19
+      ],
+      "runs": 3,
+      "description": "All four PACT terms, LoRA+ and rsLoRA, contextual temperature.",
+      "accuracy": {
+        "mean": 0.8456790123456791,
+        "std": 0.02828750428985088,
+        "n": 3
+      },
+      "pair_accuracy": {
+        "mean": 0.7325102880658436,
+        "std": 0.061831190128875384,
+        "n": 3
+      },
+      "nll": {
+        "mean": 0.5595173099835019,
+        "std": 0.08795210037830081,
+        "n": 3
+      },
+      "brier": {
+        "mean": 0.25057488039078785,
+        "std": 0.026182508394899648,
+        "n": 3
+      },
+      "ece": {
+        "mean": 0.10752710695817769,
+        "std": 0.017161578018249184,
+        "n": 3
+      },
+      "expected_score_mae": {
+        "mean": 0.23197263271304594,
+        "std": 0.1197416637005477,
+        "n": 3
+      }
+    },
+    "base_model": {
+      "seeds": [],
+      "runs": 1,
+      "description": "Qwen/Qwen3.5-9B @ c202236235762e1c871ad0ccb60c8ee5ba337b9a, no adapter",
+      "accuracy": {
+        "mean": 0.6635802469135802,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.35802469135802467,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 1.0944137253307766,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.5492945523765927,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.24557099543669092,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.5713894240949241,
+        "std": 0.0,
+        "n": 1
+      }
+    }
+  },
+  "ensemble": {
+    "ce_only": {
+      "seeds": [
+        17,
+        18,
+        19
+      ],
+      "runs": 3,
+      "description": "Same optimiser and schedule as PACT, cross-entropy objective only.",
+      "accuracy": {
+        "mean": 0.8456790123456791,
+        "std": 0.04629629629629628,
+        "n": 3
+      },
+      "pair_accuracy": {
+        "mean": 0.7325102880658436,
+        "std": 0.06799469811464326,
+        "n": 3
+      },
+      "nll": {
+        "mean": 0.5181410843066082,
+        "std": 0.17510409332026988,
+        "n": 3
+      },
+      "brier": {
+        "mean": 0.23574267379085193,
+        "std": 0.05888979456488256,
+        "n": 3
+      },
+      "ece": {
+        "mean": 0.08244408817086436,
+        "std": 0.03448464006896721,
+        "n": 3
+      },
+      "permutation_tv": {
+        "mean": 0.07439363435247835,
+        "std": 0.01598292496502654,
+        "n": 3
+      },
+      "permutation_flip_rate": {
+        "mean": 0.12139917695473251,
+        "std": 0.038093639056735844,
+        "n": 3
+      },
+      "expected_score_mae": {
+        "mean": 0.27343258647335866,
+        "std": 0.0663107088359286,
+        "n": 3
+      }
+    },
+    "nimble_recipe": {
+      "seeds": [
+        17,
+        18,
+        19
+      ],
+      "runs": 3,
+      "description": "Published Nimble recipe inside this harness: plain candidate cross-entropy, one epoch, linear schedule, no extra views.",
+      "accuracy": {
+        "mean": 0.8569958847736626,
+        "std": 0.025699580240322633,
+        "n": 3
+      },
+      "pair_accuracy": {
+        "mean": 0.7242798353909464,
+        "std": 0.04379382027529372,
+        "n": 3
+      },
+      "nll": {
+        "mean": 0.3442202629857052,
+        "std": 0.04011613711983036,
+        "n": 3
+      },
+      "brier": {
+        "mean": 0.20008450181956983,
+        "std": 0.028630166622767943,
+        "n": 3
+      },
+      "ece": {
+        "mean": 0.047271550283234744,
+        "std": 0.010081680350786663,
+        "n": 3
+      },
+      "permutation_tv": {
+        "mean": 0.06860997206185561,
+        "std": 0.009193906789925863,
+        "n": 3
+      },
+      "permutation_flip_rate": {
+        "mean": 0.13786008230452676,
+        "std": 0.018084769373710858,
+        "n": 3
+      },
+      "expected_score_mae": {
+        "mean": 0.29636912776630375,
+        "std": 0.033567884348639325,
+        "n": 3
+      }
+    },
+    "no_cf": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop the counterfactual difference-in-differences margin.",
+      "accuracy": {
+        "mean": 0.8672839506172839,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7777777777777778,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.35929333861324386,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.195532275877927,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.04367922192793691,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_tv": {
+        "mean": 0.052979708499738994,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_flip_rate": {
+        "mean": 0.09567901234567901,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.29336049123314484,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_emd": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop the ordinal transport cost on Score fields.",
+      "accuracy": {
+        "mean": 0.8827160493827161,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7839506172839507,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.3694111108644124,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.18184883801795904,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.04375572319444991,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_tv": {
+        "mean": 0.08899964311300096,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_flip_rate": {
+        "mean": 0.1574074074074074,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.23749881009921614,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_nr": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop the evidence-necessity term.",
+      "accuracy": {
+        "mean": 0.8549382716049383,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7283950617283951,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.5153892543635835,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.25053584559811204,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.11035190329679487,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_tv": {
+        "mean": 0.11727596720583927,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_flip_rate": {
+        "mean": 0.17592592592592593,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.2171039745133947,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_pcr": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: drop permutation consistency (keeps the permuted views as plain augmentation).",
+      "accuracy": {
+        "mean": 0.8734567901234568,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7901234567901234,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.4438656958487321,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.1931013705086911,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.057875523198851905,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_tv": {
+        "mean": 0.04812485823749418,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_flip_rate": {
+        "mean": 0.09259259259259259,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.15587363156333514,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "no_perm_views": {
+      "seeds": [
+        17
+      ],
+      "runs": 1,
+      "description": "Ablation: no permuted encodings at all (isolates augmentation from the consistency term).",
+      "accuracy": {
+        "mean": 0.8611111111111112,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.7592592592592593,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.591239304136391,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.19540838935017332,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.03549758207340782,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_tv": {
+        "mean": 0.0664965457570697,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_flip_rate": {
+        "mean": 0.12962962962962962,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.2869043564137182,
+        "std": 0.0,
+        "n": 1
+      }
+    },
+    "pact_full": {
+      "seeds": [
+        17,
+        18,
+        19
+      ],
+      "runs": 3,
+      "description": "All four PACT terms, LoRA+ and rsLoRA, contextual temperature.",
+      "accuracy": {
+        "mean": 0.838477366255144,
+        "std": 0.025884250258043452,
+        "n": 3
+      },
+      "pair_accuracy": {
+        "mean": 0.7242798353909464,
+        "std": 0.05532645950513889,
+        "n": 3
+      },
+      "nll": {
+        "mean": 0.45795970437955863,
+        "std": 0.057951204280902426,
+        "n": 3
+      },
+      "brier": {
+        "mean": 0.24257406139329438,
+        "std": 0.02885669864466571,
+        "n": 3
+      },
+      "ece": {
+        "mean": 0.08587643664698584,
+        "std": 0.015686054751449883,
+        "n": 3
+      },
+      "permutation_tv": {
+        "mean": 0.0561860045259017,
+        "std": 0.01430410188958717,
+        "n": 3
+      },
+      "permutation_flip_rate": {
+        "mean": 0.09773662551440328,
+        "std": 0.020550395427405534,
+        "n": 3
+      },
+      "expected_score_mae": {
+        "mean": 0.2527685288005715,
+        "std": 0.08964776836220768,
+        "n": 3
+      }
+    },
+    "base_model": {
+      "seeds": [],
+      "runs": 1,
+      "description": "Qwen/Qwen3.5-9B @ c202236235762e1c871ad0ccb60c8ee5ba337b9a, no adapter",
+      "accuracy": {
+        "mean": 0.6759259259259259,
+        "std": 0.0,
+        "n": 1
+      },
+      "pair_accuracy": {
+        "mean": 0.38271604938271603,
+        "std": 0.0,
+        "n": 1
+      },
+      "nll": {
+        "mean": 0.9990108213348843,
+        "std": 0.0,
+        "n": 1
+      },
+      "brier": {
+        "mean": 0.4978715547639318,
+        "std": 0.0,
+        "n": 1
+      },
+      "ece": {
+        "mean": 0.213625513513967,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_tv": {
+        "mean": 0.1204402167490556,
+        "std": 0.0,
+        "n": 1
+      },
+      "permutation_flip_rate": {
+        "mean": 0.2345679012345679,
+        "std": 0.0,
+        "n": 1
+      },
+      "expected_score_mae": {
+        "mean": 0.5499208876804199,
+        "std": 0.0,
+        "n": 1
+      }
+    }
+  }
+}

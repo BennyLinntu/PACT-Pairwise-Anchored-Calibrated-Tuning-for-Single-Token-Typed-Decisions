@@ -1,0 +1,1323 @@
+{
+  "comparisons": [
+    {
+      "run_a": "pact_full",
+      "run_b": "nimble_recipe",
+      "seed": 17,
+      "n": 324,
+      "accuracy_a": 0.8395061728395061,
+      "accuracy_b": 0.8395061728395061,
+      "mcnemar": {
+        "b": 19,
+        "c": 19,
+        "n_discordant": 38,
+        "exact_p": 1.0,
+        "chi2_p": 0.8711314915971582
+      },
+      "bootstrap": {
+        "point": 0.0,
+        "ci95": [
+          -0.037037037037037035,
+          0.037037037037037035
+        ],
+        "excludes_zero": false
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 0.9655172413793104,
+          "b_acc": 0.9310344827586207,
+          "delta": 0.034482758620689655
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.6714285714285714,
+          "b_acc": 0.7857142857142857,
+          "delta": -0.11428571428571428
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6363636363636364,
+          "b_acc": 0.7272727272727273,
+          "delta": -0.09090909090909091
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 0.9433962264150944,
+          "b_acc": 0.8679245283018868,
+          "delta": 0.07547169811320754
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.8333333333333334,
+          "b_acc": 0.8,
+          "delta": 0.03333333333333333
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 1.0,
+          "b_acc": 0.9375,
+          "delta": 0.0625
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.773972602739726,
+          "b_acc": 0.8082191780821918,
+          "delta": -0.03424657534246575
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9473684210526315,
+          "b_acc": 0.956140350877193,
+          "delta": -0.008771929824561403
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.796875,
+          "b_acc": 0.703125,
+          "delta": 0.09375
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "nimble_recipe",
+      "seed": 18,
+      "n": 324,
+      "accuracy_a": 0.8209876543209876,
+      "accuracy_b": 0.8395061728395061,
+      "mcnemar": {
+        "b": 25,
+        "c": 31,
+        "n_discordant": 56,
+        "exact_p": 0.5044037600228255,
+        "chi2_p": 0.5040358664525046
+      },
+      "bootstrap": {
+        "point": -0.018518518518518517,
+        "ci95": [
+          -0.06481481481481481,
+          0.027777777777777776
+        ],
+        "excludes_zero": false
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 0.8448275862068966,
+          "b_acc": 0.9310344827586207,
+          "delta": -0.08620689655172414
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.7571428571428571,
+          "b_acc": 0.7857142857142857,
+          "delta": -0.02857142857142857
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6363636363636364,
+          "b_acc": 0.7727272727272727,
+          "delta": -0.13636363636363635
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 0.9150943396226415,
+          "b_acc": 0.8490566037735849,
+          "delta": 0.0660377358490566
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.8,
+          "b_acc": 0.8,
+          "delta": 0.0
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 0.9375,
+          "b_acc": 0.9375,
+          "delta": 0.0
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.7808219178082192,
+          "b_acc": 0.815068493150685,
+          "delta": -0.03424657534246575
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9035087719298246,
+          "b_acc": 0.9473684210526315,
+          "delta": -0.043859649122807015
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.765625,
+          "b_acc": 0.703125,
+          "delta": 0.0625
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "nimble_recipe",
+      "seed": 19,
+      "n": 324,
+      "accuracy_a": 0.8765432098765432,
+      "accuracy_b": 0.8765432098765432,
+      "mcnemar": {
+        "b": 27,
+        "c": 27,
+        "n_discordant": 54,
+        "exact_p": 1.0,
+        "chi2_p": 0.8917558535067943
+      },
+      "bootstrap": {
+        "point": 0.0,
+        "ci95": [
+          -0.046296296296296294,
+          0.043209876543209874
+        ],
+        "excludes_zero": false
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 1.0,
+          "b_acc": 0.9310344827586207,
+          "delta": 0.06896551724137931
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.7571428571428571,
+          "b_acc": 0.8571428571428571,
+          "delta": -0.1
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6590909090909091,
+          "b_acc": 0.8409090909090909,
+          "delta": -0.18181818181818182
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 1.0,
+          "b_acc": 0.8773584905660378,
+          "delta": 0.12264150943396226
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.7666666666666667,
+          "b_acc": 0.8333333333333334,
+          "delta": -0.06666666666666667
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 0.9375,
+          "b_acc": 0.9375,
+          "delta": 0.0
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.8013698630136986,
+          "b_acc": 0.8493150684931506,
+          "delta": -0.04794520547945205
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9473684210526315,
+          "b_acc": 0.9736842105263158,
+          "delta": -0.02631578947368421
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.921875,
+          "b_acc": 0.765625,
+          "delta": 0.15625
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "ce_only",
+      "seed": 17,
+      "n": 324,
+      "accuracy_a": 0.8395061728395061,
+      "accuracy_b": 0.8734567901234568,
+      "mcnemar": {
+        "b": 13,
+        "c": 24,
+        "n_discordant": 37,
+        "exact_p": 0.09887174959294498,
+        "chi2_p": 0.1001782942262679
+      },
+      "bootstrap": {
+        "point": -0.033950617283950615,
+        "ci95": [
+          -0.07098765432098765,
+          0.0030864197530864196
+        ],
+        "excludes_zero": false
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 0.9655172413793104,
+          "b_acc": 0.9310344827586207,
+          "delta": 0.034482758620689655
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.6714285714285714,
+          "b_acc": 0.7285714285714285,
+          "delta": -0.05714285714285714
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6363636363636364,
+          "b_acc": 0.7272727272727273,
+          "delta": -0.09090909090909091
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 0.9433962264150944,
+          "b_acc": 1.0,
+          "delta": -0.05660377358490566
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.8333333333333334,
+          "b_acc": 0.8333333333333334,
+          "delta": 0.0
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 1.0,
+          "b_acc": 0.9375,
+          "delta": 0.0625
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.773972602739726,
+          "b_acc": 0.7876712328767124,
+          "delta": -0.0136986301369863
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9473684210526315,
+          "b_acc": 0.9736842105263158,
+          "delta": -0.02631578947368421
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.796875,
+          "b_acc": 0.890625,
+          "delta": -0.09375
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "ce_only",
+      "seed": 18,
+      "n": 324,
+      "accuracy_a": 0.8209876543209876,
+      "accuracy_b": 0.7561728395061729,
+      "mcnemar": {
+        "b": 39,
+        "c": 18,
+        "n_discordant": 57,
+        "exact_p": 0.0075081755341502,
+        "chi2_p": 0.008071487425267976
+      },
+      "bootstrap": {
+        "point": 0.06481481481481481,
+        "ci95": [
+          0.018518518518518517,
+          0.1111111111111111
+        ],
+        "excludes_zero": true
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 0.8448275862068966,
+          "b_acc": 0.9137931034482759,
+          "delta": -0.06896551724137931
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.7571428571428571,
+          "b_acc": 0.5428571428571428,
+          "delta": 0.21428571428571427
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6363636363636364,
+          "b_acc": 0.6363636363636364,
+          "delta": 0.0
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 0.9150943396226415,
+          "b_acc": 0.8301886792452831,
+          "delta": 0.08490566037735849
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.8,
+          "b_acc": 0.7666666666666667,
+          "delta": 0.03333333333333333
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 0.9375,
+          "b_acc": 0.9375,
+          "delta": 0.0
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.7808219178082192,
+          "b_acc": 0.684931506849315,
+          "delta": 0.0958904109589041
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9035087719298246,
+          "b_acc": 0.9473684210526315,
+          "delta": -0.043859649122807015
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.765625,
+          "b_acc": 0.578125,
+          "delta": 0.1875
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "ce_only",
+      "seed": 19,
+      "n": 324,
+      "accuracy_a": 0.8765432098765432,
+      "accuracy_b": 0.8364197530864198,
+      "mcnemar": {
+        "b": 23,
+        "c": 10,
+        "n_discordant": 33,
+        "exact_p": 0.03508203336969018,
+        "chi2_p": 0.03671385636270408
+      },
+      "bootstrap": {
+        "point": 0.040123456790123455,
+        "ci95": [
+          0.006172839506172839,
+          0.07407407407407407
+        ],
+        "excludes_zero": true
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 1.0,
+          "b_acc": 0.9310344827586207,
+          "delta": 0.06896551724137931
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.7571428571428571,
+          "b_acc": 0.7142857142857143,
+          "delta": 0.04285714285714286
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6590909090909091,
+          "b_acc": 0.6818181818181818,
+          "delta": -0.022727272727272728
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 1.0,
+          "b_acc": 0.9150943396226415,
+          "delta": 0.08490566037735849
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.7666666666666667,
+          "b_acc": 0.8333333333333334,
+          "delta": -0.06666666666666667
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 0.9375,
+          "b_acc": 0.9375,
+          "delta": 0.0
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.8013698630136986,
+          "b_acc": 0.7808219178082192,
+          "delta": 0.02054794520547945
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9473684210526315,
+          "b_acc": 0.9473684210526315,
+          "delta": 0.0
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.921875,
+          "b_acc": 0.765625,
+          "delta": 0.15625
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "base_model",
+      "seed": 17,
+      "n": 324,
+      "accuracy_a": 0.8395061728395061,
+      "accuracy_b": 0.6388888888888888,
+      "mcnemar": {
+        "b": 92,
+        "c": 27,
+        "n_discordant": 119,
+        "exact_p": 1.7323422836309298e-09,
+        "chi2_p": 4.4409756982943804e-09
+      },
+      "bootstrap": {
+        "point": 0.2006172839506173,
+        "ci95": [
+          0.1388888888888889,
+          0.2623456790123457
+        ],
+        "excludes_zero": true
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 0.9655172413793104,
+          "b_acc": 0.7931034482758621,
+          "delta": 0.1724137931034483
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.6714285714285714,
+          "b_acc": 0.5714285714285714,
+          "delta": 0.1
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6363636363636364,
+          "b_acc": 0.5909090909090909,
+          "delta": 0.045454545454545456
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 0.9433962264150944,
+          "b_acc": 0.6509433962264151,
+          "delta": 0.29245283018867924
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.8333333333333334,
+          "b_acc": 0.4666666666666667,
+          "delta": 0.36666666666666664
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 1.0,
+          "b_acc": 0.75,
+          "delta": 0.25
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.773972602739726,
+          "b_acc": 0.5753424657534246,
+          "delta": 0.19863013698630136
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9473684210526315,
+          "b_acc": 0.7982456140350878,
+          "delta": 0.14912280701754385
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.796875,
+          "b_acc": 0.5,
+          "delta": 0.296875
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "base_model",
+      "seed": 18,
+      "n": 324,
+      "accuracy_a": 0.8209876543209876,
+      "accuracy_b": 0.6388888888888888,
+      "mcnemar": {
+        "b": 86,
+        "c": 27,
+        "n_discordant": 113,
+        "exact_p": 2.340613293581683e-08,
+        "chi2_p": 4.864839442397795e-08
+      },
+      "bootstrap": {
+        "point": 0.18209876543209877,
+        "ci95": [
+          0.12037037037037036,
+          0.24382716049382716
+        ],
+        "excludes_zero": true
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 0.8448275862068966,
+          "b_acc": 0.7931034482758621,
+          "delta": 0.05172413793103448
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.7571428571428571,
+          "b_acc": 0.5714285714285714,
+          "delta": 0.18571428571428572
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6363636363636364,
+          "b_acc": 0.5909090909090909,
+          "delta": 0.045454545454545456
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 0.9150943396226415,
+          "b_acc": 0.6509433962264151,
+          "delta": 0.2641509433962264
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.8,
+          "b_acc": 0.4666666666666667,
+          "delta": 0.3333333333333333
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 0.9375,
+          "b_acc": 0.75,
+          "delta": 0.1875
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.7808219178082192,
+          "b_acc": 0.5753424657534246,
+          "delta": 0.2054794520547945
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9035087719298246,
+          "b_acc": 0.7982456140350878,
+          "delta": 0.10526315789473684
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.765625,
+          "b_acc": 0.5,
+          "delta": 0.265625
+        }
+      }
+    },
+    {
+      "run_a": "pact_full",
+      "run_b": "base_model",
+      "seed": 19,
+      "n": 324,
+      "accuracy_a": 0.8765432098765432,
+      "accuracy_b": 0.6388888888888888,
+      "mcnemar": {
+        "b": 98,
+        "c": 21,
+        "n_discordant": 119,
+        "exact_p": 4.4033126351506433e-13,
+        "chi2_p": 3.239852830461132e-12
+      },
+      "bootstrap": {
+        "point": 0.23765432098765432,
+        "ci95": [
+          0.17901234567901234,
+          0.2993827160493827
+        ],
+        "excludes_zero": true
+      },
+      "by_domain": {
+        "commerce": {
+          "n": 58,
+          "a_acc": 1.0,
+          "b_acc": 0.7931034482758621,
+          "delta": 0.20689655172413793
+        },
+        "education": {
+          "n": 70,
+          "a_acc": 0.7571428571428571,
+          "b_acc": 0.5714285714285714,
+          "delta": 0.18571428571428572
+        },
+        "media": {
+          "n": 44,
+          "a_acc": 0.6590909090909091,
+          "b_acc": 0.5909090909090909,
+          "delta": 0.06818181818181818
+        },
+        "public_services": {
+          "n": 106,
+          "a_acc": 1.0,
+          "b_acc": 0.6509433962264151,
+          "delta": 0.3490566037735849
+        },
+        "supply_chain": {
+          "n": 30,
+          "a_acc": 0.7666666666666667,
+          "b_acc": 0.4666666666666667,
+          "delta": 0.3
+        },
+        "travel": {
+          "n": 16,
+          "a_acc": 0.9375,
+          "b_acc": 0.75,
+          "delta": 0.1875
+        }
+      },
+      "by_kind": {
+        "choice": {
+          "n": 146,
+          "a_acc": 0.8013698630136986,
+          "b_acc": 0.5753424657534246,
+          "delta": 0.22602739726027396
+        },
+        "noul": {
+          "n": 114,
+          "a_acc": 0.9473684210526315,
+          "b_acc": 0.7982456140350878,
+          "delta": 0.14912280701754385
+        },
+        "score": {
+          "n": 64,
+          "a_acc": 0.921875,
+          "b_acc": 0.5,
+          "delta": 0.421875
+        }
+      }
+    }
+  ],
+  "confidently_wrong": {
+    "pact_full_seed18": [
+      {
+        "id": "scale-diverse-173-001-counterfactual",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9970039429306439,
+        "gold": 2,
+        "prediction": 3
+      },
+      {
+        "id": "scale-diverse-211-004-base",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9920556972804261,
+        "gold": 2,
+        "prediction": 3
+      },
+      {
+        "id": "fast-43-diverse-215-039-base",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.9907917354627177,
+        "gold": 1,
+        "prediction": 3
+      },
+      {
+        "id": "fast-41-diverse-274-002-counterfactual",
+        "domain": "supply_chain",
+        "kind": "noul",
+        "confidence": 0.9862108052782835,
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "id": "scale-diverse-215-003-base",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.9858745503518254,
+        "gold": 1,
+        "prediction": 3
+      },
+      {
+        "id": "fast-41-diverse-079-012-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.978851292170448,
+        "gold": 2,
+        "prediction": 3
+      },
+      {
+        "id": "scale-diverse-211-006-base",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9749553301224075,
+        "gold": 2,
+        "prediction": 3
+      },
+      {
+        "id": "fast-41-diverse-212-059-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9733593837559147,
+        "gold": 2,
+        "prediction": 1
+      },
+      {
+        "id": "scale-diverse-274-004-counterfactual",
+        "domain": "supply_chain",
+        "kind": "noul",
+        "confidence": 0.9566664192399412,
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "id": "fast-41-diverse-211-018-base",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9483913977970395,
+        "gold": 2,
+        "prediction": 3
+      },
+      {
+        "id": "fast-41-diverse-274-004-counterfactual",
+        "domain": "supply_chain",
+        "kind": "noul",
+        "confidence": 0.9471269359653657,
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "id": "fast-41-diverse-084-006-counterfactual",
+        "domain": "education",
+        "kind": "score",
+        "confidence": 0.94679019800694,
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "id": "fast-43-diverse-272-025-counterfactual",
+        "domain": "supply_chain",
+        "kind": "choice",
+        "confidence": 0.943577470368352,
+        "gold": 3,
+        "prediction": 0
+      },
+      {
+        "id": "scale-diverse-213-001-counterfactual",
+        "domain": "media",
+        "kind": "noul",
+        "confidence": 0.9346311418233008,
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "id": "fast-41-diverse-216-009-counterfactual",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.924898229198532,
+        "gold": 1,
+        "prediction": 3
+      },
+      {
+        "id": "scale-diverse-211-006-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.920199314333561,
+        "gold": 1,
+        "prediction": 3
+      },
+      {
+        "id": "fast-41-diverse-009-007-counterfactual",
+        "domain": "commerce",
+        "kind": "noul",
+        "confidence": 0.9165761677170955,
+        "gold": 0,
+        "prediction": 1
+      }
+    ],
+    "base_model": [
+      {
+        "id": "fast-43-diverse-008-010-counterfactual",
+        "domain": "commerce",
+        "kind": "choice",
+        "confidence": 0.9980976720787322,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-008-009-counterfactual",
+        "domain": "commerce",
+        "kind": "choice",
+        "confidence": 0.9972826805014418,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-059-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9958350474085166,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-008-011-counterfactual",
+        "domain": "commerce",
+        "kind": "choice",
+        "confidence": 0.9957543101960488,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-008-005-counterfactual",
+        "domain": "commerce",
+        "kind": "choice",
+        "confidence": 0.9948884616727347,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-169-085-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9942393234184558,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-216-005-counterfactual",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.9938423466675426,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-215-003-base",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.9938394152366038,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-080-003-counterfactual",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9935362915212187,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-169-023-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9918259790711537,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-169-024-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9905376116265782,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-028-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9905376116265779,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-010-004-counterfactual",
+        "domain": "commerce",
+        "kind": "noul",
+        "confidence": 0.9859363729567544,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-213-001-counterfactual",
+        "domain": "media",
+        "kind": "noul",
+        "confidence": 0.9859363729567544,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-023-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9832307885926831,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-169-071-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9828601483210107,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-032-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9824768758540329,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-042-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9824659850376875,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-010-004-counterfactual",
+        "domain": "commerce",
+        "kind": "noul",
+        "confidence": 0.9820137900379085,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-173-001-base",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9817794949447116,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-010-001-counterfactual",
+        "domain": "commerce",
+        "kind": "noul",
+        "confidence": 0.9796676466573412,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-213-003-counterfactual",
+        "domain": "media",
+        "kind": "noul",
+        "confidence": 0.9770226300899744,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-008-003-counterfactual",
+        "domain": "commerce",
+        "kind": "choice",
+        "confidence": 0.9768786319291425,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-169-064-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9752546392924901,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-082-004-counterfactual",
+        "domain": "education",
+        "kind": "noul",
+        "confidence": 0.9740426428022031,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-037-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9732433174656985,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-273-001-counterfactual",
+        "domain": "supply_chain",
+        "kind": "noul",
+        "confidence": 0.9706877692486436,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-082-006-counterfactual",
+        "domain": "education",
+        "kind": "noul",
+        "confidence": 0.9669140216112958,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-275-005-base",
+        "domain": "supply_chain",
+        "kind": "score",
+        "confidence": 0.966166238232437,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-216-009-counterfactual",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.966088258852804,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-058-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9660353070633785,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-045-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9659028634056318,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-272-025-counterfactual",
+        "domain": "supply_chain",
+        "kind": "choice",
+        "confidence": 0.9620215194791448,
+        "gold": 3,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-084-003-base",
+        "domain": "education",
+        "kind": "score",
+        "confidence": 0.9603124110874369,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-215-004-base",
+        "domain": "media",
+        "kind": "score",
+        "confidence": 0.9601801479593002,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-169-020-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9589450757920842,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-174-001-base",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9572005436216416,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-174-011-base",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9565098209797699,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-057-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9564254855815639,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-010-001-counterfactual",
+        "domain": "commerce",
+        "kind": "noul",
+        "confidence": 0.9525741268224334,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-173-002-base",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9469202612639694,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-171-001-base",
+        "domain": "public_services",
+        "kind": "noul",
+        "confidence": 0.9465966702001757,
+        "gold": 1,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-003-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9432609621965162,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-011-004-counterfactual",
+        "domain": "commerce",
+        "kind": "score",
+        "confidence": 0.9404276973426849,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-059-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9386663329852155,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-060-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9385844726561379,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-174-005-base",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9346737508894435,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-273-008-counterfactual",
+        "domain": "supply_chain",
+        "kind": "noul",
+        "confidence": 0.9324533088603709,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-079-002-counterfactual",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9228212367499056,
+        "gold": 3,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-055-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9226432623513621,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-056-base",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9211462284653543,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-173-004-base",
+        "domain": "public_services",
+        "kind": "score",
+        "confidence": 0.9159655998050249,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-41-diverse-212-034-counterfactual",
+        "domain": "media",
+        "kind": "choice",
+        "confidence": 0.9121181192325896,
+        "gold": 2,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-169-001-counterfactual",
+        "domain": "public_services",
+        "kind": "choice",
+        "confidence": 0.9098445462561349,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "scale-diverse-099-002-counterfactual",
+        "domain": "travel",
+        "kind": "noul",
+        "confidence": 0.9046505351008906,
+        "gold": 0,
+        "prediction": null
+      },
+      {
+        "id": "fast-43-diverse-079-022-counterfactual",
+        "domain": "education",
+        "kind": "choice",
+        "confidence": 0.9010564095388909,
+        "gold": 3,
+        "prediction": null
+      }
+    ]
+  }
+}

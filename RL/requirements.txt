@@ -1,0 +1,22 @@
+# RL fine-tuning stack for pact/train_tetris_rl.py.
+#
+# Install PyTorch first, with the CUDA build your driver supports, e.g.
+#   python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cu128
+# then:
+#   python -m pip install -r requirements.txt
+#
+# Versions match the main PACT project's requirements.txt so the adapter this
+# produces stays loadable everywhere a PACT/Nimble adapter is.
+
+transformers==5.17.0
+peft==0.21.0
+accelerate==1.15.0
+safetensors>=0.4.5
+sentencepiece==0.2.2
+huggingface_hub>=0.34.0
+flask>=3.0          # tetris/server.py's prompt-building functions are imported directly;
+                    # this script never actually starts the Flask server itself.
+
+# Optional - only if you use configs/server_9b_24gb_qlora.json (single-GPU,
+# 4-bit) instead of configs/server_2x40gb_rl.json (2-GPU, BF16):
+# bitsandbytes>=0.43.0

@@ -1,0 +1,44 @@
+{
+  "base_model_local": {
+    "count": 324,
+    "correct": 207,
+    "accuracy": 0.6388888888888888,
+    "nll": 1.0918643177458762,
+    "brier": 0.5605048180545623,
+    "ece": 0.24445046570688253,
+    "mean_confidence": 0.8749844295006184,
+    "expected_score_mae": 0.6337909315872503,
+    "level_mae": 0.609375,
+    "pair_accuracy": 0.3148148148148148,
+    "pairs": 162,
+    "aurc": 0.2124266643103612
+  },
+  "pact_full_local": {
+    "count": 324,
+    "correct": 263,
+    "accuracy": 0.8117283950617284,
+    "nll": 0.5701942213054704,
+    "brier": 0.28573839630855,
+    "ece": 0.09449082759530544,
+    "mean_confidence": 0.8869009610191222,
+    "expected_score_mae": 0.42593113319229803,
+    "level_mae": 0.4375,
+    "pair_accuracy": 0.6481481481481481,
+    "pairs": 162,
+    "aurc": 0.06201327462056065
+  },
+  "reference_from_server_run": {
+    "base_model": {
+      "accuracy": 0.6636,
+      "pair_accuracy": 0.358,
+      "ece": 0.2456,
+      "nll": 1.0944
+    },
+    "pact_full_shipped_seed18_holdout": {
+      "accuracy": 0.821,
+      "pair_accuracy": 0.6728,
+      "nll": 0.5285,
+      "ece": 0.0915
+    }
+  }
+}

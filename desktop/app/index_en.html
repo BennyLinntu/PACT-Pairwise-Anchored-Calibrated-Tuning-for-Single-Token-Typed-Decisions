@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PACT plays Tetris</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="lang-switch"><a href="index_zh.html">中文</a></div>
+<div class="wrap">
+  <header class="title">
+    <h1>PACT plays Tetris</h1>
+    <p>A from-scratch Tetris, playable by hand or handed to the fine-tuned PACT model.</p>
+  </header>
+
+  <div class="board-panel">
+    <canvas id="board"></canvas>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h2>Status</h2>
+      <div class="stats-grid">
+        <div class="stat-label">Score</div><div class="stat-value" id="score">0</div>
+        <div class="stat-label">Lines</div><div class="stat-value" id="lines">0</div>
+        <div class="stat-label">Level</div><div class="stat-value" id="level">0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hold</h2>
+      <div class="mini-row"><canvas id="hold-canvas" width="90" height="70"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h2>Next</h2>
+      <div class="mini-row next-list">
+        <canvas id="next-canvas-0" width="90" height="70"></canvas>
+        <canvas id="next-canvas-1" width="90" height="70"></canvas>
+        <canvas id="next-canvas-2" width="90" height="70"></canvas>
+      </div>
+    </div>
+
+    <div class="card btn-row">
+      <button id="new-game-btn">New game</button>
+      <button id="pause-btn">Pause</button>
+      <button id="ai-btn" disabled>Let PACT play</button>
+      <div id="ai-status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Controls</h2>
+      <ul class="controls-list">
+        <li><kbd>&larr;</kbd><kbd>&rarr;</kbd> move</li>
+        <li><kbd>&uarr;</kbd> rotate CW &nbsp; <kbd>Z</kbd> rotate CCW</li>
+        <li><kbd>&darr;</kbd> soft drop &nbsp; <kbd>space</kbd> hard drop</li>
+        <li><kbd>C</kbd> hold &nbsp; <kbd>P</kbd> pause</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="footnote">
+    "Let PACT play" asks a 9B model fine-tuned for business-document
+    classification to place each Tetris piece, choosing from a short list of
+    legal placements the game already worked out two moves ahead for it
+    &mdash; it was never trained to play games, so expect uneven, not
+    masterful, play. Needs <code>python tetris/server.py</code> running
+    locally.
+  </p>
+</div>
+
+<script src="engine.js"></script>
+<script>
+  window.LANG = {
+    gameOver: "Game over", pressNewGame: "Press “New game” to retry",
+    pause: "Pause", resume: "Resume",
+    aiStart: "Let PACT play", aiStop: "Stop AI",
+    aiThinking: "PACT is thinking…", aiWatching: "PACT is playing…",
+    aiError: "Couldn’t reach the AI backend (is server.py running?)",
+    aiBackendMissing: "AI backend not running — start it with “python tetris/server.py” on a GPU machine to enable AI play",
+  };
+</script>
+<script src="ai_client.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

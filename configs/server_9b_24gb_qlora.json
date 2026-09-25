@@ -1,0 +1,77 @@
+{
+  "output_dir": ".cache/runs/pact-9b-qlora",
+  "seeds": [
+    17
+  ],
+  "data": {
+    "max_length": 2048,
+    "permutation_views": 1,
+    "necessity_views": true,
+    "inner_holdout_families": 4,
+    "split_seed": 17
+  },
+  "model": {
+    "model_id": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "dtype": "bfloat16",
+    "load_in_4bit": true,
+    "bnb_compute_dtype": "bfloat16",
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "use_rslora": true,
+    "target_scope": ".language_model.",
+    "gradient_checkpointing": true
+  },
+  "loss": {
+    "cf_weight": 0.5,
+    "cf_margin": 2.0,
+    "pcr_weight": 0.5,
+    "nr_weight": 0.2,
+    "ordinal_emd_weight": 0.3,
+    "reg_warmup_frac": 0.1
+  },
+  "optim": {
+    "epochs": 2.0,
+    "learning_rate": 5e-05,
+    "lora_b_multiplier": 8.0,
+    "scheduler": "cosine",
+    "groups_per_batch": 1,
+    "grad_accum": 4,
+    "perm_view_prob": 0.5,
+    "necessity_prob": 0.5,
+    "eval_every_frac": 0.25,
+    "seed": 17
+  },
+  "evaluation": {
+    "permutation_ensemble": 4,
+    "rows_per_batch": 2,
+    "score_base_model": true,
+    "calibrate": true,
+    "calibration_model": "contextual"
+  },
+  "runs": [
+    {
+      "name": "pact_full_qlora",
+      "description": "PACT on 4-bit NF4 base weights: fits a single 24 GB GPU.",
+      "overrides": {},
+      "seeds": [
+        17
+      ]
+    },
+    {
+      "name": "ce_only_qlora",
+      "description": "Cross-entropy baseline under the same 4-bit setup.",
+      "overrides": {
+        "loss.cf_weight": 0.0,
+        "loss.pcr_weight": 0.0,
+        "loss.nr_weight": 0.0,
+        "loss.ordinal_emd_weight": 0.0,
+        "data.permutation_views": 0,
+        "data.necessity_views": false
+      },
+      "seeds": [
+        17
+      ]
+    }
+  ]
+}

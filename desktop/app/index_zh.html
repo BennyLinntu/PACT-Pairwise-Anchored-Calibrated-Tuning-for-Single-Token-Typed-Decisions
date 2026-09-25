@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PACT 玩俄罗斯方块</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="lang-switch"><a href="index_en.html">English</a></div>
+<div class="wrap">
+  <header class="title">
+    <h1>PACT 玩俄罗斯方块</h1>
+    <p>从零手写的俄罗斯方块，你可以自己玩，也可以交给微调过的 PACT 模型来玩。</p>
+  </header>
+
+  <div class="board-panel">
+    <canvas id="board"></canvas>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h2>状态</h2>
+      <div class="stats-grid">
+        <div class="stat-label">分数</div><div class="stat-value" id="score">0</div>
+        <div class="stat-label">消行</div><div class="stat-value" id="lines">0</div>
+        <div class="stat-label">等级</div><div class="stat-value" id="level">0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>暂存</h2>
+      <div class="mini-row"><canvas id="hold-canvas" width="90" height="70"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h2>下一个</h2>
+      <div class="mini-row next-list">
+        <canvas id="next-canvas-0" width="90" height="70"></canvas>
+        <canvas id="next-canvas-1" width="90" height="70"></canvas>
+        <canvas id="next-canvas-2" width="90" height="70"></canvas>
+      </div>
+    </div>
+
+    <div class="card btn-row">
+      <button id="new-game-btn">新游戏</button>
+      <button id="pause-btn">暂停</button>
+      <button id="ai-btn" disabled>让 PACT 来玩</button>
+      <div id="ai-status"></div>
+    </div>
+
+    <div class="card">
+      <h2>操作说明</h2>
+      <ul class="controls-list">
+        <li><kbd>&larr;</kbd><kbd>&rarr;</kbd> 左右移动</li>
+        <li><kbd>&uarr;</kbd> 顺时针旋转 &nbsp; <kbd>Z</kbd> 逆时针旋转</li>
+        <li><kbd>&darr;</kbd> 软降 &nbsp; <kbd>空格</kbd> 硬降</li>
+        <li><kbd>C</kbd> 暂存方块 &nbsp; <kbd>P</kbd> 暂停</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="footnote">
+    "让 PACT 来玩" 会请一个为商业文档分类微调过的 9B 模型来决定每个方块怎么摆——
+    游戏引擎已经帮它把两步之内的落点后果都算好了，它只需要从一小份候选里选一个——
+    它从没学过玩游戏，所以预期看到的是发挥不稳定，而不是打得完美。
+    需要本地先运行 <code>python tetris/server.py</code>。
+  </p>
+</div>
+
+<script src="engine.js"></script>
+<script>
+  window.LANG = {
+    gameOver: "游戏结束", pressNewGame: "点击“新游戏”重新开始",
+    pause: "暂停", resume: "继续",
+    aiStart: "让 PACT 来玩", aiStop: "停止 AI",
+    aiThinking: "PACT 正在思考…", aiWatching: "PACT 正在游玩…",
+    aiError: "连不上 AI 后端（server.py 启动了吗？）",
+    aiBackendMissing: "AI 后端没有运行 —— 在有 GPU 的电脑上运行 “python tetris/server.py” 即可启用 AI 对战",
+  };
+</script>
+<script src="ai_client.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+  "plan": {
+    "train_groups": 1167,
+    "micro_batches_per_epoch": 584,
+    "optimizer_steps_per_epoch": 292,
+    "total_steps": 584,
+    "warmup_steps": 58,
+    "effective_pairs_per_step": 4,
+    "memory_estimate": {
+      "rows_per_micro_batch": 10,
+      "tokens_per_micro_batch": 20480,
+      "weights_gib": 16.76,
+      "optimizer_gib": 0.32,
+      "activations_gib": 6.57,
+      "estimated_peak_gib": 23.65,
+      "assumes": {
+        "parameters": 9000000000.0,
+        "layers": 36,
+        "hidden": 3584,
+        "gradient_checkpointing": true
+      },
+      "note": "rough estimate; the measured peak is in train_report.json"
+    }
+  },
+  "model": {
+    "loader": "AutoModelForCausalLM",
+    "device": "cuda",
+    "dtype": "torch.bfloat16",
+    "target_modules": 128,
+    "target_example": [
+      "model.layers.0.mlp.gate_proj",
+      "model.layers.0.mlp.up_proj",
+      "model.layers.0.mlp.down_proj",
+      "model.layers.1.mlp.gate_proj"
+    ],
+    "trainable_parameters": 29097984,
+    "total_parameters": 8982901248,
+    "trainable_fraction": 0.003239263484776539,
+    "load_in_4bit": false,
+    "use_rslora": true,
+    "use_dora": false
+  },
+  "views": {
+    "views": {
+      "dev_calib/primary": 226,
+      "dev_select/primary": 116,
+      "train/necessity": 1167,
+      "train/perm1": 2334,
+      "train/primary": 2334
+    },
+    "primary_kinds": {
+      "dev_calib/choice": 64,
+      "dev_calib/noul": 60,
+      "dev_calib/score": 102,
+      "dev_select/choice": 26,
+      "dev_select/noul": 32,
+      "dev_select/score": 58,
+      "train/choice": 766,
+      "train/noul": 796,
+      "train/score": 772
+    },
+    "max_tokens": 1098
+  }
+}

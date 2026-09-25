@@ -1,0 +1,23 @@
+# PACT training stack.
+#
+# Install PyTorch first, with the CUDA build your driver supports, e.g.
+#   python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cu128
+# then:
+#   python -m pip install -r new_methods/requirements.txt
+#
+# Versions match requirements/training.txt in the repository root so that a
+# PACT adapter and a Nimble adapter are produced by the same library stack.
+
+transformers==5.17.0
+peft==0.21.0
+accelerate==1.15.0
+safetensors>=0.4.5
+sentencepiece==0.2.2
+huggingface_hub>=0.34.0
+matplotlib>=3.7          # the figures written at the end of a run
+
+# Optional - 4-bit base weights (configs/server_9b_24gb_qlora.json)
+# bitsandbytes>=0.43.0
+
+# Optional - auxiliary public data (pact/public_data.py, download_all.py --public)
+# datasets>=3.0.0

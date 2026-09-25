@@ -1,0 +1,164 @@
+{
+  "output_dir": ".cache/runs/pact-9b",
+  "seeds": [
+    17
+  ],
+  "data": {
+    "max_length": 2048,
+    "permutation_views": 1,
+    "necessity_views": true,
+    "necessity_drop": "changed",
+    "inner_holdout_families": 4,
+    "split_seed": 17,
+    "public_mix": []
+  },
+  "model": {
+    "model_id": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "dtype": "bfloat16",
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "use_rslora": true,
+    "use_dora": false,
+    "target_scope": ".language_model.",
+    "gradient_checkpointing": true
+  },
+  "loss": {
+    "ce_weight": 1.0,
+    "cf_weight": 0.5,
+    "cf_margin": 2.0,
+    "pcr_weight": 0.5,
+    "nr_weight": 0.2,
+    "nr_margin": 0.0,
+    "ordinal_emd_weight": 0.3,
+    "ordinal_smoothing_tau": 0.0,
+    "reg_warmup_frac": 0.1
+  },
+  "optim": {
+    "epochs": 2.0,
+    "learning_rate": 5e-05,
+    "lora_b_multiplier": 8.0,
+    "warmup_frac": 0.1,
+    "scheduler": "cosine",
+    "groups_per_batch": 2,
+    "grad_accum": 2,
+    "perm_view_prob": 1.0,
+    "necessity_prob": 1.0,
+    "max_grad_norm": 1.0,
+    "seed": 17,
+    "eval_every_frac": 0.25,
+    "save_every_frac": 0.5,
+    "log_every": 10
+  },
+  "evaluation": {
+    "permutation_ensemble": 4,
+    "rows_per_batch": 8,
+    "ece_bins": 15,
+    "score_base_model": true,
+    "calibrate": true,
+    "calibration_model": "contextual"
+  },
+  "runs": [
+    {
+      "name": "pact_full",
+      "description": "All four PACT terms, LoRA+ and rsLoRA, contextual temperature.",
+      "overrides": {},
+      "seeds": [
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "name": "nimble_recipe",
+      "description": "Published Nimble recipe inside this harness: plain candidate cross-entropy, one epoch, linear schedule, no extra views.",
+      "overrides": {
+        "loss.cf_weight": 0.0,
+        "loss.pcr_weight": 0.0,
+        "loss.nr_weight": 0.0,
+        "loss.ordinal_emd_weight": 0.0,
+        "data.permutation_views": 0,
+        "data.necessity_views": false,
+        "model.use_rslora": false,
+        "optim.lora_b_multiplier": 1.0,
+        "optim.epochs": 1.0,
+        "optim.scheduler": "linear"
+      },
+      "seeds": [
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "name": "ce_only",
+      "description": "Same optimiser and schedule as PACT, cross-entropy objective only.",
+      "overrides": {
+        "loss.cf_weight": 0.0,
+        "loss.pcr_weight": 0.0,
+        "loss.nr_weight": 0.0,
+        "loss.ordinal_emd_weight": 0.0,
+        "data.permutation_views": 0,
+        "data.necessity_views": false
+      },
+      "seeds": [
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "name": "no_cf",
+      "description": "Ablation: drop the counterfactual difference-in-differences margin.",
+      "overrides": {
+        "loss.cf_weight": 0.0
+      },
+      "seeds": [
+        17
+      ]
+    },
+    {
+      "name": "no_pcr",
+      "description": "Ablation: drop permutation consistency (keeps the permuted views as plain augmentation).",
+      "overrides": {
+        "loss.pcr_weight": 0.0
+      },
+      "seeds": [
+        17
+      ]
+    },
+    {
+      "name": "no_nr",
+      "description": "Ablation: drop the evidence-necessity term.",
+      "overrides": {
+        "loss.nr_weight": 0.0,
+        "data.necessity_views": false
+      },
+      "seeds": [
+        17
+      ]
+    },
+    {
+      "name": "no_emd",
+      "description": "Ablation: drop the ordinal transport cost on Score fields.",
+      "overrides": {
+        "loss.ordinal_emd_weight": 0.0
+      },
+      "seeds": [
+        17
+      ]
+    },
+    {
+      "name": "no_perm_views",
+      "description": "Ablation: no permuted encodings at all (isolates augmentation from the consistency term).",
+      "overrides": {
+        "data.permutation_views": 0,
+        "loss.pcr_weight": 0.0
+      },
+      "seeds": [
+        17
+      ]
+    }
+  ]
+}
