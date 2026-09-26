@@ -3,11 +3,7 @@
 A fine-tuning recipe that replaces **only the training objective, the batching
 and the probability head** of Nimble, a single-token typed-decision model. The
 prompt, the one-token answer codes and the saved adapter format are
-unchanged, so a PACT adapter loads anywhere a Nimble adapter loads. The full
-write-up is in [`paper/main.pdf`](paper/main.pdf) ([LaTeX source](paper/main.tex), IEEE
-conference format; every figure and table is regenerated from `results/` by
-[`paper/build_assets.py`](paper/build_assets.py)).
-
+unchanged, so a PACT adapter loads anywhere a Nimble adapter loads.
 As a live, playable demonstration that the same serving mechanism works as a
 general typed-choice interface — not just on the document benchmark it was
 trained for — this repo also ships **a from-scratch Tetris the adapter can
