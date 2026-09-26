@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+\caption{Training cost per run (one 48\,GB GPU per job): optimiser steps, training views per pair,
+mean wall-clock time, peak GPU memory, and mean holdout accuracy (\%). Serving cost is identical
+for all runs.}
+\label{tab:cost}
+\setlength{\tabcolsep}{3.2pt}
+\footnotesize
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{l c c c c c}
+\toprule
+\rowcolor{hdr}
+\hd{Run} & \hd{Steps} & \hd{Views/pair} & \hd{Hours} & \hd{Peak GiB} & \hd{Acc.} \\
+\midrule
+Nimble recipe & 292 & 2.0 & 0.26 & 21.8 & 85.2 \\
+CE-only & 584 & 2.0 & 0.50 & 21.8 & 82.2 \\
+\rowcolor{pactrow}\textbf{PACT} & 584 & 5.0 & 1.37 & 28.8 & 84.6 \\
+\midrule
+$-\mathcal{L}_{\mathrm{CF}}$ & 584 & 5.0 & 1.37 & 28.7 & 84.3 \\
+$-\mathcal{L}_{\mathrm{PC}}$ & 584 & 5.0 & 1.36 & 28.7 & 87.7 \\
+$-\mathcal{L}_{\mathrm{NR}}$ & 584 & 4.0 & 1.06 & 26.4 & 80.9 \\
+$-\mathcal{L}_{\mathrm{EMD}}$ & 584 & 5.0 & 1.36 & 28.7 & 84.3 \\
+$-$permuted views & 584 & 3.0 & 0.76 & 24.0 & 84.9 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -109,7 +109,8 @@ sampled -- games, i.e. what the served app would actually do).
 `RL/` in the repo root has a real 1,574-step run on 2×40GB GPUs, checkpoint
 and all (`RL/runs/tetris-rl/`). `top_pick_rate` -- how often the sampled move
 matched the heuristic's own top-ranked candidate -- rose from 0.19 at step 1
-to ≥0.875 within 200 steps and held at 0.75-1.0 for the rest of training.
+to 0.875 by step 16, and its 100-step average stayed between 0.88 and 0.99
+from step 200 to the end of training.
 Greedy eval under a fixed 400-piece cap stayed flat at ~17,000-18,000 mean
 score the whole run -- because the cap is what ends the game, not skill; one
 uncapped eval game at the final checkpoint ran to 1,500 pieces, 598 lines,

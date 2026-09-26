@@ -17,6 +17,10 @@ paper/*.out
 paper/*.bbl
 paper/*.blg
 paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/archive_v1/
 
 # OS noise
 .DS_Store

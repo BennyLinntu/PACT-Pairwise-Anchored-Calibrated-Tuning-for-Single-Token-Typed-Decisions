@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\caption{Permutation-ensembled decoding ($K{=}4$), \%. TV: mean pairwise total variation
+between the $K$ canonical distributions; Flip: share of items whose argmax changes across
+orderings. $\Delta_K$: accuracy gain of $K{=}4$ over $K{=}1$ (pp); a position-invariant
+model should gain nothing.}
+\label{tab:ensemble}
+\setlength{\tabcolsep}{2.6pt}
+\footnotesize
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{l ccccc c}
+\toprule
+\rowcolor{hdr}
+\hd{Run} & \hd{Acc.} & \hd{Pair} & \hd{ECE} & \hd{TV\,$\downarrow$} & \hd{Flip\,$\downarrow$} & \hd{$\Delta_K$} \\
+\midrule
+Base model & 67.6 & 38.3 & 21.4 & 12.0 & 23.5 & \gainc{+1.2} \\
+Nimble recipe & \best{85.7\,{\scriptsize$\pm$\,2.6}} & 72.4\,{\scriptsize$\pm$\,4.4} & \best{4.7\,{\scriptsize$\pm$\,1.0}} & 6.9\,{\scriptsize$\pm$\,0.9} & 13.8\,{\scriptsize$\pm$\,1.8} & \gainc{+0.5} \\
+CE-only & 84.6\,{\scriptsize$\pm$\,4.6} & \best{73.3\,{\scriptsize$\pm$\,6.8}} & 8.2\,{\scriptsize$\pm$\,3.4} & 7.4\,{\scriptsize$\pm$\,1.6} & 12.1\,{\scriptsize$\pm$\,3.8} & \gainc{+2.4} \\
+\rowcolor{pactrow}\textbf{PACT (ours)} & 83.8\,{\scriptsize$\pm$\,2.6} & 72.4\,{\scriptsize$\pm$\,5.5} & 8.6\,{\scriptsize$\pm$\,1.6} & \best{5.6\,{\scriptsize$\pm$\,1.4}} & \best{9.8\,{\scriptsize$\pm$\,2.1}} & \gainc{$-$0.7} \\
+\bottomrule
+\end{tabular}
+\end{table}

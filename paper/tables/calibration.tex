@@ -1,0 +1,30 @@
+\begin{table}[t]
+\centering
+\caption{Contextual temperature per run: mean [min, max] of $T(x)$ on the calibration split,
+and ECE (\%) before/after on the calibration split (fit) and on the holdout (test).
+$^\star$Shipped model. \worse{Red}: $T(x)$ raised ECE.}
+\label{tab:calibration}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{l c c cc cc}
+\toprule
+\rowcolor{hdr}
+ & & & \multicolumn{2}{c}{\hd{Calib.\ split}} & \multicolumn{2}{c}{\hd{Holdout}} \\
+\rowcolor{hdr}
+\hd{Run} & \hd{Seed} & \hd{$T(x)$} & \hd{pre} & \hd{post} & \hd{pre} & \hd{post} \\
+\midrule
+Nimble recipe & 17 & 1.85 [1.10, 2.89] & 14.4 & 6.5 & 13.3 & 5.8 \\
+Nimble recipe & 18 & 1.54 [0.99, 2.00] & 11.4 & 8.3 & 8.3 & 6.0 \\
+Nimble recipe & 19 & 1.85 [1.28, 2.41] & 16.1 & 9.1 & 6.8 & 4.5 \\
+\midrule
+CE-only & 17 & 2.01 [1.78, 2.23] & 15.5 & 6.0 & 7.6 & 4.9 \\
+CE-only & 18 & 2.12 [1.95, 2.32] & 15.7 & 4.5 & 20.4 & 13.0 \\
+CE-only & 19 & 1.56 [0.70, 2.45] & 8.1 & 7.6 & 14.7 & 13.0 \\
+\midrule
+\rowcolor{pactrow}\textbf{PACT} & 17 & 1.56 [0.69, 2.69] & 12.8 & 5.7 & 12.6 & 9.1 \\
+\rowcolor{pactrow}\textbf{PACT} & 18$^\star$ & 1.16 [0.92, 1.40] & 5.5 & \worse{5.7} & 9.2 & 7.7 \\
+\rowcolor{pactrow}\textbf{PACT} & 19 & 1.66 [1.61, 1.76] & 12.5 & 6.0 & 10.5 & 6.9 \\
+\bottomrule
+\end{tabular}
+\end{table}

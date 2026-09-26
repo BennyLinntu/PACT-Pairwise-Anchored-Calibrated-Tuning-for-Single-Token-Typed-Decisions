@@ -1,636 +1,986 @@
-% PACT write-up. Build with:
-%   pdflatex main && bibtex main && pdflatex main && pdflatex main
-% Tables are written by pact/report.py into tables.tex (plus four tables
-% appended by hand for the significance/error analysis in Sec. 6.5-6.6).
-% Figures are written by pact/figures.py into figures/.
+% PACT -- IEEE conference manuscript.
+%
+% Build:   python paper/build_assets.py      (figures/*.pdf and tables/*.tex from results/)
+%          cd paper && latexmk -pdf main       (or pdflatex, bibtex, pdflatex, pdflatex)
+%
+% Every number in tables/ and figures/ is generated from results/ by build_assets.py;
+% numbers quoted in the prose are copied from those generated files.
 
-\documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb}
-\usepackage{booktabs}
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{url}
-\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[hidelinks]{hyperref}
 
-\title{Pairwise-Anchored Calibrated Tuning:\\
-Using the Structure of Contrastive Curation as a Training Signal}
-\author{}
-\date{\today}
+% ------------------------------------------------------------------ palette
+% One colour per run and per loss term; identical to paper/build_assets.py.
+\definecolor{cBase}{HTML}{8D96A0}
+\definecolor{cNimble}{HTML}{EE8A2E}
+\definecolor{cCEonly}{HTML}{8C62C4}
+\definecolor{cPACT}{HTML}{0E8C86}
+\definecolor{cCE}{HTML}{4A4F55}
+\definecolor{cCF}{HTML}{3B7DD8}
+\definecolor{cPC}{HTML}{EE8A2E}
+\definecolor{cNR}{HTML}{E0584C}
+\definecolor{cEMD}{HTML}{8C62C4}
 
+% ------------------------------------------------------------ table styling
+\definecolor{hdr}{HTML}{1F3A5F}
+\definecolor{subhdr}{HTML}{E4ECF6}
+\definecolor{rowgray}{HTML}{F2F3F5}
+\definecolor{pactrow}{HTML}{DDF1EE}
+\definecolor{bestc}{HTML}{B9E4DC}
+\definecolor{sigcol}{HTML}{FFE3A8}
+\definecolor{hurtB}{HTML}{F3AFA7}
+\definecolor{hurtA}{HTML}{FADAD5}
+\definecolor{helpA}{HTML}{D6EFDD}
+\definecolor{helpB}{HTML}{A6DBB6}
+\definecolor{vGood}{HTML}{1E8E5A}
+\definecolor{vPart}{HTML}{3B7DD8}
+\definecolor{vMixed}{HTML}{D98A1C}
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+\renewcommand{\arraystretch}{1.2}
+\newcommand{\hd}[1]{\textcolor{white}{\textbf{#1}}}
+\newcommand{\best}[1]{\cellcolor{bestc}\textbf{#1}}
+\newcommand{\sigc}[1]{\cellcolor{sigcol}\textbf{#1}}
+\newcommand{\gainc}[1]{#1}
+\newcommand{\worse}[1]{\textcolor{cNR}{\textbf{#1}}}
+\DeclareRobustCommand{\swatch}[1]{\textcolor{#1}{\rule[-0.5pt]{6.5pt}{6.5pt}}}
+\newcommand{\verdict}[2]{{\setlength{\fboxsep}{1.5pt}\colorbox{#1}{\textcolor{white}{\scriptsize\textbf{\strut#2}}}}}
+
+% --------------------------------------------------------------- notation
+\newcommand{\Lce}{\mathcal{L}_{\mathrm{CE}}}
 \newcommand{\Lcf}{\mathcal{L}_{\mathrm{CF}}}
 \newcommand{\Lpc}{\mathcal{L}_{\mathrm{PC}}}
 \newcommand{\Lnr}{\mathcal{L}_{\mathrm{NR}}}
 \newcommand{\Lemd}{\mathcal{L}_{\mathrm{EMD}}}
-\newcommand{\Lce}{\mathcal{L}_{\mathrm{CE}}}
+\newcommand{\JSD}{\mathrm{JSD}}
+\newcommand{\softplus}{\mathrm{softplus}}
+\newcommand{\run}[1]{#1}
+\newtheorem{proposition}{Proposition}
 
 \begin{document}
+
+\title{PACT: Pairwise-Anchored Calibrated Tuning\\
+for Single-Token Typed Decisions}
+
+\author{\IEEEauthorblockN{Yida Lin}
+\IEEEauthorblockA{Victoria University of Wellington\\
+Wellington, New Zealand\\
+linyida@myvuw.ac.nz}}
+
 \maketitle
 
+% =====================================================================
 \begin{abstract}
-Single-token typed decision models answer a schema question by reading the
-logits of a handful of one-letter answer codes at one position. They are fast,
-but the way they are trained throws away most of what their training data
-knows. We study one such model, Bespoke-Nimble, whose data is curated as
-\emph{contrastive pairs}: two contexts that differ in one fact, where the
-difference flips the reference answer, together with a machine-checked
-certificate that deleting either focus sentence makes the decisive fact
-unknown. The released recipe optimises plain cross-entropy over the candidate
-logits, one example at a time; the pairing, the certificate and the
-arbitrariness of the answer codes never enter the objective.
-
-We propose \textbf{PACT} (Pairwise-Anchored Calibrated Tuning), which adds
-four terms, all derived from structure that already exists in the data and
-costs no new annotation: (i) a \emph{difference-in-differences margin} over
-each pair, invariant to any logit offset attached to the shared scenario;
-(ii) a \emph{permutation-consistency} term that removes position bias from a
-model whose entire output is a choice of letter; (iii) an
-\emph{evidence-necessity} term applied to the verified evidence-ablated
-contexts the original recipe discards; and (iv) an \emph{ordinal transport
-cost} for rubric-scored fields. We further fit a \emph{contextual
-temperature} on a split held out from training families. All four terms are
-implemented without changing the serving prompt, the answer codes or the
-adapter format.
-
-We report a pre-registered evaluation on the frozen 324-example holdout with
-three seeds, a reproduction of the published recipe inside the same harness,
-five leave-one-out ablations, and paired significance tests. The honest
-result is mixed: PACT's holdout \emph{accuracy} is statistically
-indistinguishable from the reproduced Nimble recipe (paired McNemar
-$p \ge 0.50$ at every seed), but it significantly beats the same optimiser
-and schedule run on cross-entropy alone ($p = 0.008, 0.035$ at 2 of 3 seeds),
-and its gains concentrate in \emph{pair accuracy} and \emph{calibration}
-rather than raw accuracy. We state in advance which observation would
-falsify each claim, and report every one of them, including the ones that
-did not confirm the hypothesis.
+Single-token typed-decision models answer a schema question by reading the
+logits of a few one-letter answer codes at a single position: they are fast
+and return a probability for every allowed answer, but they are trained with
+plain cross-entropy that ignores most of the structure in their training data.
+We study such a model whose data is curated as \emph{contrastive pairs}---two
+contexts that differ in one edited fact that flips the answer---each carrying a
+machine-checked certificate that deleting the decisive sentence makes the fact
+unknown. We propose \textbf{PACT}, which turns this structure into four
+training terms that need no new annotation: a difference-in-differences margin
+over each pair that is invariant to any shared logit offset, a
+permutation-consistency term against answer-code position bias, an
+evidence-necessity term on certificate-verified ablated contexts, and an
+ordinal transport cost for rubric fields, plus a three-parameter contextual
+temperature. On a frozen 324-item holdout with three seeds, PACT matches the
+published recipe in accuracy (84.6 vs.\ 85.2\%; McNemar $p\ge0.50$ at every
+seed) while giving the lowest position bias of all runs (answer flips under
+relabelling 9.8 vs.\ 13.8\%) and the lowest ordinal error on rubric fields
+(MAE 0.232 vs.\ 0.311). Against a control with the same optimiser and schedule
+but cross-entropy only, PACT is significantly more accurate at two of three
+seeds, halves the seed-to-seed spread and lowers NLL by 26\%. Seed-matched
+ablations and pre-specified falsification tests locate these gains precisely:
+no single term raises raw accuracy, and the method's value lies in robustness
+and stability rather than headline accuracy.
 \end{abstract}
 
+\begin{IEEEkeywords}
+large language models, typed decisions, contrastive data, counterfactual
+supervision, position bias, calibration, parameter-efficient fine-tuning
+\end{IEEEkeywords}
+
+% =====================================================================
 \section{Introduction}
+\label{sec:intro}
 
 A \emph{typed decision} is a classification whose label space is supplied at
-inference time by a schema: pick one of these five outcomes, answer this
-true/false question, place this case on this five-level rubric. Serving such
-a model efficiently has a known shape (Rogge, 2026; Bespoke Labs, 2026):
-render the context and schema once, assign each allowed answer a one-token
-code, read the logits of those codes at a single position, and softmax over
-them. There is no generated JSON to parse, no sampling, and the probability
-of every allowed answer comes for free.
+inference time by a schema: pick one of five outcomes, answer a true/false
+question, or place a case on a five-level rubric. Such decisions can be served
+efficiently by rendering the context and schema once, assigning each allowed
+answer a one-token code, reading the logits of those codes at one position, and
+normalising over them~\cite{rogge2026,nimble2026}. There is no generated JSON to
+parse and no sampling, and every allowed answer receives a probability.
 
-The training side is less settled. Bespoke-Nimble fine-tunes a 9B base model
-with LoRA on 2{,}676 curated examples using cross-entropy over the candidate
-logits, and reports 90.1\% agreement with reference labels on a 324-example
-holdout, against 66.4\% for the base model. The curation, however, is much
-richer than the objective. Each example belongs to a pair built by editing at
-most eight words of one evidence sentence so that the reference answer flips;
-each pair carries a certificate recording the atoms, the rules, the focus
-fact, and the verified fact that removing either focus sentence leaves that
-fact unknown even with all other text present.
+The training side of this interface is less settled. The open Nimble
+recipe~\cite{nimble2026} fine-tunes a 9B-parameter base model with
+LoRA~\cite{hu2022lora} on 2{,}676 curated examples using cross-entropy over the
+candidate logits. Its curation, however, is far richer than its objective.
+Every example belongs to a \emph{contrastive pair} produced by editing at most
+eight words of one evidence sentence so that the reference answer flips, and
+every pair carries a certificate that records the decisive fact and verifies
+that removing either focus sentence leaves that fact \emph{unknown}. The
+objective sees each example on its own: the pairing, the certificate and the
+arbitrariness of the letter assigned to each answer never enter the loss.
 
-This paper asks what a training objective looks like when it uses that
-structure. Our position is that the interesting supervision in contrastive
-data is not in either example --- it is in the \emph{difference} between
-them, and in the counterfactual absence of the evidence. Cross-entropy cannot
-express either.
+This paper asks what a training objective looks like when it does use that
+structure. Our premise is that the most informative supervision in contrastive
+data lies not in either example but in the \emph{difference} between
+them---and in the counterfactual absence of the evidence---neither of which
+cross-entropy can express. We make three contributions.
 
-Contributions:
 \begin{enumerate}
-\item A difference-in-differences margin over contrastive pairs (\S4.2),
-  invariant to any logit offset shared by the pair, and therefore
-  supervising the causal effect of the edited fact rather than the label of
-  either example.
-\item A permutation-consistency term (\S4.3) for models whose output is a
-  choice of letter, together with a decoding-time ensemble and a metric that
-  quantifies the residual position bias.
-\item An evidence-necessity term (\S4.4) that turns the certificate's
-  necessity check into a constraint on ablated contexts, reconstructable for
-  2{,}676 of 2{,}676 training records.
-\item An ordinal transport cost (\S4.5) for rubric fields, aligned with the
-  expected-level quantity the serving code already computes.
-\item A contextual temperature (\S4.6) with three parameters, fitted on
-  training-side families, that conditions on the number of allowed answers
-  and the prompt length.
-\item A harness that keeps the serving contract fixed, reproduces the
-  published recipe as a control, and runs leave-one-out ablations of every
-  term, with pre-stated falsification criteria (\S5.5) and paired
-  significance tests (\S6.5).
+\item \textbf{A structure-derived objective (PACT).} Four terms that use only
+  structure already present in the data (Section~\ref{sec:method}): a
+  difference-in-differences margin whose value is provably unchanged by any
+  logit offset the pair shares (Proposition~\ref{prop:offset}); a
+  Jensen--Shannon consistency term across answer-code relabellings; an
+  evidence-necessity term on certificate-verified ablated contexts, which the
+  released recipe discards; and a squared earth-mover cost for ordinal rubric
+  fields. A three-parameter contextual temperature conditions calibration on
+  the number of choices and the prompt length. Serving prompt, answer codes
+  and adapter format are unchanged, so PACT is a drop-in replacement.
+\item \textbf{A controlled, falsifiable evaluation.} We reproduce the published
+  recipe inside one harness, add a control that shares PACT's optimiser but
+  not its loss terms, run every leave-one-out ablation, state in advance which
+  observation would falsify each claim (Section~\ref{sec:hypotheses}), and report
+  paired significance tests rather than leaderboard deltas.
+\item \textbf{An honest account of what the terms buy.} PACT does not raise
+  accuracy over the published recipe. It does produce the lowest position bias
+  and ordinal error of all runs, stabilises an aggressive optimiser that on its
+  own is significantly worse, and makes calibration a cheap post-hoc step
+  (Section~\ref{sec:results}); the ablations show which terms carry which effect
+  and where the method does not help.
 \end{enumerate}
 
-\section{Background}
+Fig.~\ref{fig:overview} summarises the method.
+
+% ------------------------------------------------------------------ Fig. 1
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\input{figures/overview.tex}}
+\caption{\textbf{PACT at a glance.} (1) Each curated pair yields two labelled
+views (base, counterfactual), a copy of the base with its answer codes
+relabelled, and a certificate-verified ablated context with the decisive
+sentence removed. (2) All views share one forward pass per view through the
+LoRA-adapted model and are mapped to canonical answer order. (3) Four terms are
+added to cross-entropy, each using structure the released recipe discards.
+(4) A three-parameter temperature, fitted on training-side families, calibrates
+the served single-pass distribution. The colours of the views and loss terms
+are used consistently throughout the paper.}
+\label{fig:overview}
+\end{figure*}
+
+% =====================================================================
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Serving typed decisions.} Scoring candidate-token logits at a single
+position instead of generating and parsing structured text underlies the
+single-token decision interface described for this model
+family~\cite{rogge2026,nimble2026}; MiniCheck~\cite{tang2024minicheck} applies
+the same idea to one Boolean grounding decision. These works focus on the
+serving interface and data; we keep both fixed and change only the objective.
+
+\textbf{Counterfactual and contrastive supervision.} Counterfactually augmented
+data~\cite{kaushik2020counterfactual} shows that minimal label-flipping edits
+reduce reliance on spurious features, and contrast sets~\cite{gardner2020contrast}
+use the same construction for evaluation. Both usually feed edited examples to
+an unchanged objective. Teney et~al.~\cite{teney2020counterfactual} supervise
+the input-gradient direction between counterfactual pairs; our margin instead
+supervises the \emph{output} geometry of a pair and is exactly invariant to a
+shared offset, in the spirit of difference-in-differences
+estimation~\cite{angrist2009mostly} and pairwise ranking
+losses~\cite{burges2005ranknet}. Evidence removal is standard for
+\emph{evaluating} rationales~\cite{deyoung2020eraser}; we use certified
+removals as a \emph{training} constraint.
+
+\textbf{Option-order and label bias.} LLM multiple-choice answers depend on
+option order and label identity~\cite{zheng2024selectors,pezeshkpour2024order,robinson2023mcsb},
+and on label priors more generally~\cite{zhao2021calibrate}. Debiasing is
+typically applied at inference by permuting and averaging or by
+re-normalising. We additionally train against the bias with a bounded
+Jensen--Shannon consistency loss~\cite{lin1991divergence}, analogous to the
+consistency term of AugMix~\cite{hendrycks2020augmix}, which keeps single-pass
+serving---the reason this model family exists---sound.
+
+\textbf{Calibration.} Temperature scaling~\cite{guo2017calibration} is the
+standard post-hoc method, with richer maps such as Dirichlet
+calibration~\cite{kull2019dirichlet}; LLM confidence is known to be
+miscalibrated in task-dependent ways~\cite{jiang2021know,kadavath2022know}. We
+keep the temperature-scaling objective but let the temperature depend on two
+observable prompt statistics, which preserves every argmax.
+
+\textbf{Ordinal targets and efficient tuning.} Ordered labels benefit from
+losses that respect the order~\cite{frank2001ordinal}; squared earth-mover
+losses~\cite{hou2017emd} are one such choice, which we apply to rubric fields
+whose expected level the serving path already reports. The adapter uses
+LoRA~\cite{hu2022lora} with rank-stabilised scaling~\cite{kalajdzievski2023rslora}
+and LoRA+ learning-rate ratios~\cite{hayou2024loraplus}; a
+QLoRA~\cite{dettmers2023qlora} configuration is provided for 24\,GB GPUs.
+
+% =====================================================================
+\section{Problem Setting}
+\label{sec:setting}
 
 \subsection{Single-token typed decisions}
+\label{sec:typed}
+A field has allowed answers $v_1,\dots,v_C$ with $1\le C\le26$. The prompt
+renders the context, the schema and the requested field, and shows answer
+$v_k$ under a code letter. With $h$ the final-position hidden state and $t_k$
+the token of the $k$-th code, the model produces $z_k=\langle w_{t_k},h\rangle$
+and serves $p=\mathrm{softmax}(z_1,\dots,z_C)$. Fields are of three kinds:
+\emph{Choice} (an enumeration), \emph{Boolean} (true/false) and \emph{Score}
+(an ordered rubric with levels $0,\dots,C-1$). Two properties matter below.
+First, the map from a \emph{meaning} to a \emph{letter} is arbitrary, so any
+dependence of $p$ on the letter is error. Second, since one position is scored,
+the decision is a linear read-out of one hidden state, which makes the
+geometry of $z$---differences between candidate logits---the natural object to
+supervise.
 
-Let a field have allowed answers $v_1,\dots,v_C$ with $1 \le C \le 26$. The
-prompt renders the context, the schema and the requested field, and assigns
-answer $v_k$ the code letter $k$. Writing $t_k$ for the token id of that
-letter and $h$ for the final-position hidden state, the model produces
-$z_k = \langle w_{t_k}, h\rangle$ and the served distribution is
-$p = \mathrm{softmax}(z_1,\dots,z_C)$. Training minimises $-\log p_y$ for the
-reference answer $y$.
+\subsection{Contrastive curation with certificates}
+\label{sec:curation}
+The training file contains 1{,}338 families of exactly two records: a base
+context and a counterfactual that differs in one edited evidence sentence, with
+the reference answer flipped and a byte-identical question and criteria block.
+Each record carries a certificate naming the two sentences that jointly
+determine the focus fact, their base and edited wording, and the verified
+statement that with either focus sentence removed the focus fact becomes
+\texttt{unknown}. The released recipe trains on the two records independently
+and does not construct the removed-evidence contexts, correctly noting that
+``missing evidence'' has no reference label. Our observation is that the
+absence of a label is not the absence of information: the certificate
+establishes \emph{indifference}, which is a constraint on the logit geometry
+rather than a target. Fig.~\ref{fig:example} shows a real pair from the
+training file and the three views PACT derives from it.
 
-Two properties of this set-up matter below. First, the map from a
-\emph{meaning} to a \emph{letter} is arbitrary and re-drawn per example, so
-any dependence of $p$ on the letter is error. Second, because only one
-position is scored, the entire decision is a linear read-out of one hidden
-state, which makes the geometry of $z$ --- differences between candidate
-logits --- the natural object to supervise.
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/example_pair.tex}}
+\caption{\textbf{A curated contrastive pair from the training file} (family
+\texttt{scale-diverse-013-002}, commerce domain; turns 1--4 and 7 abridged, focus
+sentences verbatim). Changing one token of the second focus sentence (6$\to$9 days)
+flips the certified focus fact and the reference answer from A to B; deleting that
+sentence makes the fact \emph{unknown}. Cross-entropy sees $x_a$ and $x_b$ as two
+unrelated examples; PACT uses the pair ($\Lcf$), a relabelled copy ($\Lpc$) and the
+ablated context ($\Lnr$).}
+\label{fig:example}
+\end{figure*}
 
-\subsection{Contrastive curation}
+\subsection{Notation}
+\label{sec:notation}
+For an example $x$ with $C$ allowed answers, $z(x)\in\mathbb{R}^C$ denotes the
+candidate logits in \emph{canonical} order (the order in which the schema
+declares the answers) and $p(x)$ the corresponding distribution. A pair is
+$(x_a,x_b)$ with references $y_a\neq y_b$ from the same canonical set;
+$x^\circ$ is $x_a$ with one focus evidence sentence deleted; $\pi$ is a
+permutation of code positions and $z^{\pi}$ the canonical logits obtained when
+the prompt is rendered under $\pi$.
 
-The training file contains 1{,}338 families of exactly two records each: a
-base context and a counterfactual that differs in one edited evidence
-sentence, with the reference answer flipped. Both members share a
-byte-identical question and criteria block. Each record carries
-\texttt{evidence\_certificate.spec.focus\_evidence} (the two sentences that
-jointly determine the focus fact, with a path into the context),
-\texttt{verified\_pair} (the base and edited wording of each), and
-\texttt{full\_context\_fact\_states}, which records that with either focus
-sentence removed the focus fact becomes \texttt{unknown}.
-
-The released recipe uses the base and counterfactual records as independent
-training examples and does not construct the removed-evidence contexts at
-all, on the correct grounds that ``missing evidence'' has no reference label.
-Our observation is that the absence of a label is not the absence of
-information: what the certificate establishes is a statement about
-\emph{indifference}, which is a constraint on the logit geometry rather than
-a target.
-
-\section{Notation}
-
-For an example $x$ with $C$ allowed answers we write $z(x) \in \mathbb{R}^C$
-for the candidate logits in \emph{canonical} order --- the order in which the
-schema declares the answers --- obtained by undoing the code permutation
-actually used in the prompt. A pair is $(x_a, x_b)$ with reference answers
-$y_a \neq y_b$ drawn from the same canonical set. $x^\circ$ denotes $x_a$
-with one focus evidence sentence deleted. $\pi$ denotes a permutation of code
-positions, and $z^\pi$ the canonical logits obtained when the prompt is
-rendered under $\pi$.
-
+% =====================================================================
 \section{Method}
+\label{sec:method}
 
 \subsection{Canonical choice space}
-
+\label{sec:canon}
 Every loss and metric is computed after mapping code positions back to
-canonical answer indices. Concretely, the encoder records, per view, the
-vector $\kappa$ with $\kappa_k$ the canonical index of the answer shown at
-code position $k$; logits are scattered from code space into canonical
-space, with unused positions masked to $-\infty$. This makes the pair terms
-well defined (the two members may be rendered under different permutations)
-and makes ``the model changed its answer when the letters changed'' a
-measurable event.
+canonical answer indices. Per view, the encoder records a vector $\kappa$ with
+$\kappa_k$ the canonical index of the answer shown at code position $k$; logits
+are scattered from code space into canonical space and unused positions are
+masked to $-\infty$. This makes the pair terms well defined when the two
+members are rendered under different permutations, and makes ``the model
+changed its answer when the letters changed'' a measurable event.
 
 \subsection{Counterfactual difference-in-differences margin}
-
-For a pair, define
+\label{sec:cf}
+For a pair define
 \begin{equation}
-d(x_a, x_b) = \big[z_{y_a}(x_a) - z_{y_b}(x_a)\big] + \big[z_{y_b}(x_b) - z_{y_a}(x_b)\big],
-\qquad \Lcf = \mathrm{softplus}(m - d).
+d(x_a,x_b)=\big[z_{y_a}(x_a)-z_{y_b}(x_a)\big]+\big[z_{y_b}(x_b)-z_{y_a}(x_b)\big],
+\label{eq:did}
 \end{equation}
+i.e.\ the change of the $y_a{:}y_b$ log-odds between the two members, and
+penalise $\Lcf=\softplus(m-d)$.
 
-Two observations motivate it. First, $d$ is invariant to any per-pair
-additive offset: if the model adds $c_k$ to every candidate logit for both
-members (a prior over outcomes induced by the topic, the policy text, or the
-family's surface form), $c$ cancels exactly. The term therefore cannot be
-reduced by learning a family-level prior --- only by making the logit
-\emph{gap} between $y_a$ and $y_b$ move in the right direction when the one
-edited fact moves. This is the discrete analogue of a
-difference-in-differences estimator, and it is the property cross-entropy
-lacks: a model that puts 0.51 on $y_a$ for the base and 0.49 on $y_a$ for the
-counterfactual satisfies both cross-entropy terms about as well as a model
-with a decisive, evidence-driven gap.
+\begin{proposition}[Offset invariance]
+\label{prop:offset}
+For any $c\in\mathbb{R}^C$, replacing $z(x_a)$ by $z(x_a)+c$ and $z(x_b)$ by
+$z(x_b)+c$ leaves $d$ unchanged. Moreover, if both members are correct under
+the binary restriction to $\{y_a,y_b\}$, then $d>0$.
+\end{proposition}
+\begin{IEEEproof}
+Each bracket in \eqref{eq:did} is a difference of two logits of the same input,
+so $c_{y_a}-c_{y_b}$ enters the first bracket and $c_{y_b}-c_{y_a}$ the second;
+they cancel. Correctness of $x_a$ ($x_b$) under the restriction means the first
+(second) bracket is positive.
+\end{IEEEproof}
 
-Second, $d$ is a \emph{sum} over the pair rather than a product of
-independent terms, so it can only be evaluated if both members are in the
-same micro-batch; \S4.7 describes the batching this forces. We use $m = 2$
-nats and a softplus hinge so that gradients vanish smoothly once the pair is
-separated, rather than pushing logits apart without limit.
+A per-pair offset $c$ is exactly what a model learns when it acquires a prior
+over outcomes from the topic, the policy text or the family's surface form.
+$\Lcf$ therefore cannot be reduced by such a prior, only by making the logit
+gap move in the right direction when the one edited fact moves. Cross-entropy
+lacks this property: a model that assigns 0.51 to $y_a$ on the base and 0.49 on
+the counterfactual satisfies both cross-entropy terms nearly as well as a model
+with a decisive, evidence-driven gap. Because $d$ couples both members, it can
+only be evaluated when both are in the same micro-batch (Section~\ref{sec:optim}). We
+use $m=2$ nats and a softplus hinge so that gradients vanish smoothly once the
+pair is separated.
 
 \subsection{Permutation consistency}
-
-Let $\pi, \pi'$ be two code permutations of the same example and
-$p^\pi = \mathrm{softmax}(z^\pi)$ the canonical distributions. We penalise
+\label{sec:pc}
+For two code permutations $\pi,\pi'$ of the same example we penalise
 \begin{equation}
-\Lpc = \mathrm{JSD}\!\left(p^{\pi} \,\|\, p^{\pi'}\right)
-= \tfrac12 \mathrm{KL}\big(p^{\pi}\,\|\,\bar p\big) + \tfrac12 \mathrm{KL}\big(p^{\pi'}\,\|\,\bar p\big),
-\qquad \bar p = \tfrac12 (p^{\pi} + p^{\pi'}).
+\Lpc=\JSD\big(p^{\pi}\,\|\,p^{\pi'}\big)
+=\tfrac12\mathrm{KL}(p^{\pi}\|\bar p)+\tfrac12\mathrm{KL}(p^{\pi'}\|\bar p),
 \end{equation}
-
-JSD is bounded and symmetric, so no single view is privileged as the teacher,
-and a confidently wrong view cannot produce an unbounded gradient. The term
-is label-free: it constrains the model even where the reference label is
-itself uncertain.
-
-At inference the same invariance supports a cheap ensemble: score $K$
-permutations and average log-probabilities in canonical space. We report
-$K=1$ and $K=4$ separately (Table~\ref{tab:main}, \ref{tab:ensemble}), and
-treat the $K=1 \to K=4$ improvement as a measure of the bias the training
-term failed to remove --- a model that is genuinely permutation-invariant
-gains nothing from the ensemble.
+with $\bar p=\tfrac12(p^{\pi}+p^{\pi'})$. JSD is bounded and symmetric, so no
+view is privileged as a teacher and a confidently wrong view cannot produce an
+unbounded gradient; the term is label-free. At inference the same invariance
+supports a $K$-view ensemble that averages canonical log-probabilities. We
+treat the gain from $K{=}1$ to $K{=}4$ as a measure of the bias that training
+failed to remove: a perfectly permutation-invariant model gains nothing.
 
 \subsection{Evidence-necessity regularisation}
-
-The certificate states that, in $x^\circ$, the focus fact is unknown given
-all remaining text. The decision rules that distinguish $y_a$ from $y_b$
-take the focus fact as input. Therefore the evidence in $x^\circ$ does not
-discriminate $y_a$ from $y_b$ --- though it may still rule out the other
-answers, which the remaining facts constrain. We encode exactly that and
-nothing more:
+\label{sec:nr}
+The certificate states that in $x^\circ$ the focus fact is unknown given all
+remaining text, and the decision rules that separate $y_a$ from $y_b$ take the
+focus fact as input. Hence the evidence in $x^\circ$ does not discriminate
+$y_a$ from $y_b$---although it may still rule out other answers. We encode
+exactly that and nothing more:
 \begin{equation}
-\Lnr = \Big(\mathrm{relu}\big(\,|z_{y_a}(x^\circ) - z_{y_b}(x^\circ)| - \varepsilon\big)\Big)^2 .
+\Lnr=\Big(\mathrm{relu}\big(|z_{y_a}(x^\circ)-z_{y_b}(x^\circ)|-\varepsilon\big)\Big)^2 .
 \end{equation}
-
-The term is silent about $z_j(x^\circ)$ for $j \notin \{y_a, y_b\}$, silent
-about the entropy of the distribution, and silent about which of $y_a, y_b$
-is ``correct'' --- all of which would be claims the certificate does not
-support. Reconstructing $x^\circ$ requires locating the focus sentence in the
-context; we resolve it by certificate path, then exact leaf match, then
-substring, then the counterfactual wording, and delete the whole
-conversational turn when it carries nothing else. On the released training
-file this succeeds for 2{,}676 of 2{,}676 records, verified by checking that
-the sentence no longer occurs anywhere in the serialised context.
+The term is silent about $z_j(x^\circ)$ for $j\notin\{y_a,y_b\}$, about the
+entropy of $p(x^\circ)$, and about which of $y_a,y_b$ is ``correct''---claims
+the certificate does not support. To build $x^\circ$ we locate the focus
+sentence by certificate path, then exact leaf match, then substring, then the
+counterfactual wording, and delete the whole conversational turn if it carries
+nothing else. On the released training file this succeeds for all 2{,}676
+records, verified by checking that the sentence no longer occurs anywhere in
+the serialised context. We use $\varepsilon=0$.
 
 \subsection{Ordinal transport for rubric fields}
-
-Score fields expose levels $0,\dots,C-1$ and the serving code reports an
-expected level $\sum_j j \, p_j$. Cross-entropy is invariant to the ordering
-of those levels, so nothing in training prefers a near miss to a far one. We
-add the squared earth-mover distance between the predicted and reference
-CDFs:
+\label{sec:emd}
+Score fields expose levels $0,\dots,C-1$ and the serving code reports the
+expected level $\sum_j j\,p_j$. Cross-entropy is invariant to the ordering of
+the levels, so nothing in training prefers a near miss to a far one. We add
+the squared earth-mover distance between predicted and reference CDFs,
 \begin{equation}
-\Lemd = \sum_{j} \Big( \sum_{i \le j} p_i - \mathbb{1}[\,j \ge y\,] \Big)^2 ,
+\Lemd=\sum_{j=0}^{C-1}\Big(\sum_{i\le j}p_i-\mathbf{1}[\,j\ge y\,]\Big)^2 ,
 \end{equation}
-which is differentiable, cheap, and is minimised by mass concentrated near
-$y$ rather than merely on $y$.
+which is differentiable and minimised by mass concentrated \emph{near} $y$
+rather than merely \emph{on} $y$.
 
 \subsection{Contextual temperature}
-
-The released model ships no calibration and its documentation is explicit
-that the probabilities should not be read as frequencies. A single global
-temperature is the obvious fix and the wrong shape: a two-choice boolean and
-a twelve-choice enum do not share a miscalibration factor, and neither do a
-300-token and a 1{,}900-token prompt. We fit
+\label{sec:temp}
+The released model ships without calibration. A single global temperature has
+the wrong shape here: a two-choice Boolean and a six-choice enumeration do
+not share a miscalibration factor, and neither do a 300-token and a
+1{,}100-token prompt. We fit
 \begin{equation}
-T(x) = \mathrm{softplus}\!\left(a + b \log C + c \log (L/1000)\right)
+T(x)=\softplus\big(a+b\log C+c\log(L/1000)\big),
 \end{equation}
-by minimising NLL with L-BFGS on a calibration split made of \emph{training}
-source families never used to fit the adapter. Three parameters, no extra
-forward passes, and when $b = c = 0$ it reduces to standard temperature
-scaling (Guo et al., 2017) and cannot change any argmax. Table~\ref{tab:calibration}
-reports ECE before and after.
+with $L$ the prompt length in tokens, by minimising NLL with L-BFGS on a
+\emph{calibration split} of training-side families never used to fit the
+adapter. With $b=c=0$ this is standard temperature
+scaling~\cite{guo2017calibration}. Because $T(x)>0$ rescales each item's logits
+by a positive constant, it never changes an argmax, so accuracy and pair
+accuracy are untouched; it can, however, change the \emph{ranking} of
+confidences across items and hence selective risk.
 
-\subsection{Optimisation and batching}
-
-The pair term requires both members in one micro-batch and the consistency
-term requires both views, so the unit of batching is a \emph{group}: one
-family with all of its views. Groups are shuffled, sorted by length inside
-buckets (prompts reach 2{,}048 tokens; padding is the dominant waste) and cut
-into micro-batches. Each pair contributes 2 primary views, 2 permuted views
-and 1 ablated view, so an epoch costs about 1.5$\times$ the baseline.
-
-The adapter is LoRA of rank 16 over the language-model projections --- the
-same modules the published recipe adapts --- with rsLoRA scaling and LoRA+
-(the $B$ factors take a learning rate 8$\times$ that of $A$; Hayou et al.,
-2024). Regularisers ramp linearly over the first 10\% of steps. The full
-objective is
+\subsection{Objective, batching and cost}
+\label{sec:optim}
+The full objective is
 \begin{equation}
-\mathcal{L} = \Lce + \lambda_{\mathrm{cf}}\Lcf + \lambda_{\mathrm{pc}}\Lpc
- + \lambda_{\mathrm{nr}}\Lnr + \lambda_{\mathrm{emd}}\Lemd ,
+\mathcal{L}=\Lce+\lambda_{\mathrm{cf}}\Lcf+\lambda_{\mathrm{pc}}\Lpc
++\lambda_{\mathrm{nr}}\Lnr+\lambda_{\mathrm{emd}}\Lemd ,
+\label{eq:objective}
 \end{equation}
-with $\lambda = (0.5, 0.5, 0.2, 0.3)$ and $m = 2$ as defaults, chosen for
-scale comparability rather than tuned on any evaluation set.
+with $(\lambda_{\mathrm{cf}},\lambda_{\mathrm{pc}},\lambda_{\mathrm{nr}},\lambda_{\mathrm{emd}})=(0.5,0.5,0.2,0.3)$,
+chosen for scale comparability and \emph{not} tuned on any evaluation data. The
+regularisers ramp in linearly over the first 10\% of steps. Since
+$\Lcf$ needs both pair members and $\Lpc$ needs both views, the unit of
+batching is a \emph{group}: one family with all of its views
+(Algorithm~\ref{alg:step}). Groups are shuffled, sorted by length inside
+buckets of 64 groups (prompt lengths vary by more than 3$\times$, so padding
+dominates waste) and cut into micro-batches. Each pair contributes two primary, two permuted
+and one ablated view, i.e.\ 2.5$\times$ the rows of the baseline.
 
-\section{Experimental protocol}
+\begin{algorithm}[t]
+\caption{One PACT optimiser step}
+\label{alg:step}
+\small
+\begin{algorithmic}[1]
+\Require groups $\mathcal{G}$ (pair $(x_a,x_b)$, permuted $x_a^{\pi},x_b^{\pi}$, ablated $x^\circ$); ramp $r_t\in[0,1]$
+\For{each micro-batch $B\subset\mathcal{G}$ (length-bucketed)}
+  \State one forward pass over all views in $B$; read code logits
+  \State scatter to canonical order with $\kappa$; mask unused slots
+  \State $\ell\gets\Lce+r_t\lambda_{\mathrm{emd}}\Lemd$ \Comment{labelled views}
+  \State $\ell\gets\ell+r_t\big(\lambda_{\mathrm{cf}}\Lcf+\lambda_{\mathrm{pc}}\Lpc+\lambda_{\mathrm{nr}}\Lnr\big)$
+  \State accumulate $\nabla\ell$
+\EndFor
+\State clip global norm to 1; AdamW step on LoRA $A$ ($\eta$) and $B$ ($8\eta$)
+\end{algorithmic}
+\end{algorithm}
+
+% =====================================================================
+\section{Experimental Setup}
+\label{sec:setup}
 
 \subsection{Data and splits}
+Training uses the released training file (2{,}676 records, 1{,}338 pairs,
+34 source families, 10 domains). Four source families are held out from
+training: two form the \emph{selection split} used for checkpoint selection
+and two the \emph{calibration split} used to fit $T(x)$ (Table~\ref{tab:data}).
+The frozen \emph{holdout} (324 records, 162 pairs, 6 source families from 6
+domains) is used only to report final numbers---never for selection,
+calibration or early stopping. Family-level disjointness and the file hashes
+of the dataset manifest are re-verified at load time. Holdout fields have
+$C\in\{2,\dots,6\}$ allowed answers, and the longest rendered prompt has
+1{,}098 tokens.
 
-Training uses the released \texttt{data/train.jsonl} (2{,}676 records,
-1{,}338 pairs, 34 source families, 10 domains). Four source families are held
-out of training: two form the inner validation split used for checkpoint
-selection, two the calibration split used to fit $T$. The frozen
-\texttt{data/eval.jsonl} (324 records, 162 pairs, 6 source families) is used
-only to produce final numbers --- never for selection, calibration or early
-stopping. Family-level separation between training and holdout is
-re-verified at load time, along with the file hashes recorded in the dataset
-manifest.
+\input{tables/data.tex}
 
-\subsection{Models}
+\subsection{Model and training}
+The base model is Qwen3.5-9B~\cite{qwen35} at the revision pinned by the
+published recipe, in BF16 with a 2{,}048-token limit. The adapter is LoRA of
+rank 16 ($\alpha{=}32$, dropout 0.05) on all attention and MLP projections of
+the language model---the modules the published recipe adapts---with rsLoRA
+scaling. We train with AdamW~\cite{loshchilov2019adamw} at $\eta=5\times10^{-5}$,
+LoRA+ ratio 8, cosine schedule with 10\% warm-up, two epochs (584 steps) and an
+effective batch of 8 primary rows (4 pairs) per step, matching the published
+recipe. The selection split is scored every 146 steps and the checkpoint with
+the lowest selection NLL is kept. Jobs ran one per GPU on two 48\,GB GPUs.
 
-Base model \texttt{Qwen/Qwen3.5-9B} at the revision pinned by the published
-recipe, BF16, LoRA rank 16, 2{,}048-token limit. A 4-bit NF4 configuration is
-provided for 24\,GB GPUs, and is reported separately rather than mixed with
-the BF16 numbers.
+\subsection{Compared runs}
+Table~\ref{tab:runs} lists the runs. \run{Nimble recipe} reproduces the
+published recipe inside our harness. \run{CE-only} shares \emph{everything}
+with PACT except the four terms and the extra views, so PACT vs.\ \run{CE-only}
+isolates the objective, while \run{Nimble recipe} vs.\ \run{CE-only} isolates
+the optimisation changes. The three main arms use seeds 17, 18 and 19; each
+leave-one-out ablation uses seed 17 and is compared against PACT at the
+\emph{same} seed (Section~\ref{sec:ablation}).
 
-Hardware for the reported runs: two 48\,GB GPUs. Because the plan is a sweep
-of independent run $\times$ seed jobs, parallelism is at the level of
-\emph{jobs} --- one worker process per GPU, each holding a complete model,
-with no gradient traffic between them --- rather than sharding one model
-across both cards. Per GPU the estimated peak is $\sim$24\,GiB (weights
-16.8\,GiB, activations 6.6\,GiB at 10 rows of 2{,}048 tokens with gradient
-checkpointing); the measured peak is recorded per run. The effective batch is
-held at 8 primary rows per optimiser step, matching the published recipe.
-
-\subsection{Runs}
-
-\begin{center}
-\begin{tabular}{ll}
+\begin{table}[t]
+\centering
+\caption{Compared runs. All share data, prompt, adapter family and
+checkpoint selection. ``Opt.\,A'': 1 epoch, linear schedule, plain LoRA
+(published). ``Opt.\,B'': 2 epochs, cosine, rsLoRA + LoRA+.}
+\label{tab:runs}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{l l l c c}
 \toprule
-Run & What it isolates \\
+\rowcolor{hdr}
+\hd{Run} & \hd{Objective} & \hd{Views$^{\ddagger}$} & \hd{Opt.} & \hd{Seeds} \\
 \midrule
-\texttt{pact\_full} (3 seeds) & the complete method \\
-\texttt{nimble\_recipe} (3 seeds) & the published recipe reproduced in this harness \\
-\texttt{ce\_only} (3 seeds) & PACT's optimiser/schedule/selection, CE objective only \\
-\texttt{no\_cf}, \texttt{no\_pcr}, \texttt{no\_nr}, \texttt{no\_emd} & leave-one-out on each term \\
-\texttt{no\_perm\_views} & no permuted encodings at all \\
-base model & the adapter switched off, same code path \\
+Base model & -- (adapter off) & -- & -- & -- \\
+Nimble recipe & $\Lce$ & 2/0/0 & A & 3 \\
+CE-only & $\Lce$ & 2/0/0 & B & 3 \\
+\rowcolor{pactrow}\textbf{PACT} & Eq.~\eqref{eq:objective} & 2/2/1 & B & 3 \\
+$-\Lcf$, $-\Lnr$, $-\Lemd$ & PACT minus one term & 2/2/1 & B & 1 \\
+$-\Lpc$ & PACT minus JSD & 2/2$^{\ast}$/1 & B & 1 \\
+$-$permuted views & PACT without $\Lpc$ & 2/0/1 & B & 1 \\
 \bottomrule
-\end{tabular}
-\end{center}
+\end{tabular}\\[2pt]
+{\scriptsize\raggedright $^{\ddagger}$Primary / permuted / ablated views per pair.
+$^{\ast}$Permuted views kept as plain cross-entropy augmentation.\par}
+\end{table}
 
-\subsection{Metrics}
+\subsection{Metrics and statistics}
+We report accuracy; \textbf{pair accuracy}, the share of the 162 holdout pairs
+with \emph{both} members correct; NLL; multiclass Brier
+score~\cite{brier1950verification}; ECE over 15 equal-width
+bins~\cite{naeini2015ece}; the area under the confidence-ranked risk--coverage
+curve (AURC)~\cite{geifman2017selective}; expected-level MAE on Score fields;
+and, for $K{=}4$ decoding, the mean pairwise \textbf{total variation (TV)}
+between the canonical distributions of different code orderings and the
+\textbf{flip rate}, the share of items whose argmax changes across orderings.
+Because all runs are scored on the same items, we compare accuracies with the
+exact McNemar test~\cite{mcnemar1947} and a 10{,}000-resample paired
+bootstrap~\cite{efron1993bootstrap}, per seed.
 
-Accuracy against the reference labels; \textbf{pair accuracy}, the share of
-the 162 holdout pairs where \emph{both} members are correct; NLL; multiclass
-Brier; ECE over 15 equal-width bins; AURC over the confidence-ranked
-risk-coverage curve; expected-level MAE for Score fields; and
-\textbf{permutation total variation} with \textbf{answer-flip rate}. Section
-6.5 adds paired McNemar tests and bootstrap confidence intervals on accuracy,
-which the mean-$\pm$-sd tables alone cannot provide.
-
-\subsection{What would falsify each claim}
-
-Stated before the runs, so the ablation table reads as a test, not a search.
-
+\subsection{Pre-specified falsification criteria}
+\label{sec:hypotheses}
+The following were written before the runs, so the ablations read as tests
+rather than a search over cells.
 \begin{itemize}
-\item \textbf{H1 (pair margin).} If $\Lcf$ works, \texttt{no\_cf} loses more
-  pair accuracy than plain accuracy relative to \texttt{pact\_full}.
-\item \textbf{H2 (permutation consistency).} If it works, \texttt{pact\_full}
-  has lower permutation TV and flip rate than \texttt{ce\_only}, and gains
-  less from $K=4$ ensembling.
-\item \textbf{H3 (necessity).} If it works, \texttt{no\_nr} shows higher
-  confidence on the ablated inner-split contexts and no better pair accuracy.
-\item \textbf{H4 (ordinal transport).} If it works, \texttt{no\_emd} has a
-  higher expected-level MAE on Score fields at similar Score accuracy.
-\item \textbf{H5 (calibration).} If it works, holdout ECE falls after
-  applying $T$ without a drop in accuracy.
+\item[\textbf{H1}] \emph{Pair margin.} Removing $\Lcf$ lowers pair accuracy
+  by more than it lowers accuracy.
+\item[\textbf{H2}] \emph{Permutation consistency.} PACT has lower TV and flip
+  rate than \run{CE-only} and gains less from $K{=}4$ ensembling.
+\item[\textbf{H3}] \emph{Necessity.} Without $\Lnr$ the model is more
+  confident on ablated contexts and has no better pair accuracy.
+\item[\textbf{H4}] \emph{Ordinal transport.} Without $\Lemd$, Score MAE is
+  higher at similar Score accuracy.
+\item[\textbf{H5}] \emph{Calibration.} Holdout ECE falls after applying
+  $T(x)$ without a loss of accuracy.
 \end{itemize}
 
-A negative result on any of these is a result, and \S6 is designed to make it
-visible rather than absorbable.
-
-\subsection{Reproducibility}
-
-\texttt{train\_all.py} records, per run: the resolved config, the data audit
-and file hashes, the view-cache fingerprint, library versions, the device,
-the plan, the full step log, the inner-validation history, the fitted
-calibrator, and every per-example holdout row with its probabilities.
-Adapters are saved with Nimble's \texttt{schema\_config.json} contract,
-including the SHA-256 of the scoring prompt implementation, so a checkpoint
-can be rejected if the prompt code it was trained against has changed.
-
+% =====================================================================
 \section{Results}
+\label{sec:results}
 
-All numbers are copied verbatim from \texttt{results/tables/results\_tables.md},
-written by \texttt{pact/report.py}. \texttt{pact\_full}, \texttt{nimble\_recipe}
-and \texttt{ce\_only} each report 3 seeds; the five leave-one-out ablations
-report seed 17 only, and \S6.5--6.6 are explicit about what that does and does
-not license.
+\input{tables/main.tex}
 
-\IfFileExists{tables.tex}{\input{tables.tex}}{\textit{Run the experiments to
-generate tables.tex.}}
-
-% Hand-written (task-type, calibration, significance, per-domain tables) --
-% kept in a separate file from tables.tex on purpose: tables.tex is
-% regenerated by pact/report.py on every `train_all.py` run and would
-% overwrite anything added here.
-\IfFileExists{tables_extra.tex}{\input{tables_extra.tex}}{}
-
-\textbf{Reading Table~\ref{tab:ensemble} against H2:} \texttt{pact\_full} has
-the lowest mean permutation TV and flip rate of the three multi-seed arms
-(0.0562 / 0.0977 vs.\ \texttt{ce\_only}'s 0.0744 / 0.1214), the direction H2
-predicts; two single-seed ablations sit slightly lower still, which at
-$n=1$ is within noise rather than a contradiction.
-
-\textbf{Reading Table~\ref{tab:calibration} against H5:} the fitted
-temperature lowers holdout ECE in every row shown; it does not always beat a
-scalar temperature by a wide margin on the inner split (\texttt{pact\_full}
-seed 18: 0.0551 $\to$ 0.0569), which we report rather than omit.
-
-\textbf{Significance (Table~\ref{tab:significance}).} \texttt{pact\_full}'s
-holdout accuracy is statistically indistinguishable from the reproduced
-\texttt{nimble\_recipe} at every seed (all three bootstrap CIs straddle
-zero; $p \ge 0.50$) --- the published recipe, properly reproduced with
-checkpoint selection, is already a strong accuracy baseline. It does
-significantly beat \texttt{ce\_only} --- the identical optimiser, schedule
-and selection rule, differing only in the four loss terms --- at 2 of 3
-seeds ($p=0.008, 0.035$). Put together: PACT's accuracy gain over the
-\emph{naive} recipe is largely explained by the optimisation changes it
-shares with \texttt{ce\_only}, not by the four structural loss terms; those
-terms' own, statistically supported contribution is to \textbf{pair
-accuracy and calibration}, not to raw accuracy. Against \texttt{base\_model}
-the result is unambiguous and unsurprising ($p<0.001$ at every seed,
-Table~\ref{tab:significance}, bottom three rows) --- fine-tuning of any kind
-clears the base model by a wide margin, which is why \S6 frames its
-discussion around the two harder comparisons above rather than this one.
-(\texttt{base\_model} carried no per-example rows in the packaged server
-results, only the aggregate summary, so these three rows use a local 4-bit
-re-evaluation; see the K-sweep paragraph below.)
-
-\textbf{Where the models disagree (Table~\ref{tab:domain}).}
-\texttt{pact\_full} wins by 6.6 points on \texttt{public\_services} and loses
-by 13.6 on \texttt{media} at the shipped seed --- a domain-level effect the
-pooled accuracy erases. We have no pre-registered hypothesis about which
-domains PACT should help, so we report this as an observation, not a result.
-Separately, of the shipped model's 58 holdout errors, 17 (29\%) are answered
-with stated confidence $\ge 0.9$: calibration lowers ECE on average without
-removing all high-confidence mistakes. The base model fares worse on the
-same audit --- 56 of its 117 errors (48\%) are confidently wrong, nearly
-$3\times$ \texttt{pact\_full}'s rate and count.
-
-\textbf{A local 4-bit K-sweep (Figure~\ref{fig:sweep}).} As an inference-only
-supplementary check needing no retraining, we re-evaluated \texttt{pact\_full}
-(seed 18, shipped) and \texttt{base\_model} locally on a single 16\,GB
-consumer GPU (4-bit NF4) at every ensemble size $K \in \{1,2,3,4\}$. Both
-curves peak at $K{=}2$ and give a little back by $K{=}4$ --- not a
-quantisation artefact: the same non-monotonic pattern for \texttt{pact\_full}
-is already present in the BF16 3-seed numbers (single-pass 0.8457 vs.\
-$K{=}4$ 0.8385, Tables~\ref{tab:main}--\ref{tab:ensemble}). The residual
-position-bias curve is more informative: mean pairwise TV plateaus at
-0.073--0.076 for \texttt{pact\_full} from $K{=}2$ onward, versus 0.166--0.181
-for \texttt{base\_model} --- 2.2--2.4$\times$ higher at every $K$, an
-independent, quantitative confirmation of H2 on top of the aggregate row
-already in Table~\ref{tab:ensemble}.
-
-\IfFileExists{figures/runs_comparison.png}{%
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/runs_comparison.png}
-\caption{Holdout comparison across runs and ablations, single-pass decoding,
-mean $\pm$ standard deviation over seeds. Grey: untouched base model. Amber /
-plum: the two reproduced controls. Teal: the full method. Blue ramp: the
-five leave-one-out ablations.}
-\label{fig:runs}
-\end{figure}}{}
+\includegraphics[width=\textwidth]{figures/main_results.pdf}
+\caption{Holdout comparison of the three multi-seed arms and the base model.
+Bars: mean; dots: individual seeds; whiskers: $\pm$1 s.d. (a--c) single-pass
+decoding; in (c) hollow diamonds give ECE after the contextual temperature.
+(d) Permutation TV under $K{=}4$ relabellings (lower is less position bias).}
+\label{fig:main}
+\end{figure*}
 
-\IfFileExists{figures/reliability.png}{%
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=0.48\linewidth]{figures/reliability.png}
-\hfill
-\includegraphics[width=0.48\linewidth]{figures/risk_coverage.png}
-\caption{Left: stated probability against observed accuracy on the holdout,
-before and after the fitted contextual temperature. Right: error rate
-against the share of examples answered, ranked by confidence.}
+\includegraphics[width=\textwidth]{figures/position_bias.pdf}
+\caption{Position bias. (a) Distribution of per-item permutation TV for the
+shipped PACT model under $K{=}4$ (log scale). (b, c) Local 4-bit sweep over the
+ensemble size $K$ for the shipped model and the base model: accuracy (b) and
+mean pairwise TV between orderings (c).}
+\label{fig:posbias}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/calibration.pdf}
+\caption{Calibration. (a) Reliability diagram of the shipped model before and
+after $T(x)$; marker area grows with bin size. (b) Risk--coverage curves,
+items ranked by confidence. (c) Holdout ECE before (hollow) and after (filled)
+$T(x)$ for every run and seed.}
 \label{fig:calibration}
-\end{figure}}{}
+\end{figure*}
 
-\IfFileExists{figures/permutation.png}{%
+\subsection{Main comparison}
+\label{sec:main}
+Table~\ref{tab:main} and Fig.~\ref{fig:main} give the headline numbers, and
+Table~\ref{tab:significance} the paired tests. Three findings stand out.
+
+\emph{PACT matches, but does not beat, the published recipe in accuracy.}
+PACT reaches 84.6$\pm$2.8\% against 85.2$\pm$2.1\% for \run{Nimble recipe}.
+At every seed the difference is inside the bootstrap interval and McNemar
+$p\ge0.50$; at two seeds the accuracies are identical. Properly reproduced with
+checkpoint selection, the published recipe is a strong accuracy baseline, and
+it is also the best-calibrated run (ECE$_T$ 5.4\% vs.\ 7.9\% for PACT).
+
+\emph{The optimisation changes alone hurt; the PACT terms repair them.}
+\run{CE-only}---PACT's optimiser and schedule without the four terms---is the
+weakest and least stable fine-tuned arm (82.2$\pm$6.0\%, NLL 0.760, ECE
+14.3\%). Adding the terms raises mean accuracy by 2.4\,pp, significantly so at
+seeds 18 and 19 ($p=0.008$ and $0.035$; seed 17 favours \run{CE-only},
+$p=0.099$), halves the seed-to-seed standard deviation (6.0$\to$2.8\,pp) and
+lowers NLL by 26\% and ECE by 25\%. The terms thus act as regularisers that
+make a more aggressive optimiser safe, rather than as a source of accuracy
+beyond a well-tuned baseline.
+
+\emph{Where PACT does lead, the lead matches the structure it encodes.}
+PACT has the highest mean pair accuracy (73.3\%, not significant given the
+6\,pp seed spread), the lowest Score MAE of all multi-seed arms
+(0.232 vs.\ 0.311 and 0.322), and the lowest position bias
+(Section~\ref{sec:posbias}). PACT clears the base model by 18--24\,pp
+($p<0.001$ at every seed).
+
+\input{tables/significance.tex}
+
+\input{tables/ensemble.tex}
+
+\input{tables/ablation.tex}
+
+\begin{table*}[t]
+\centering
+\caption{Pre-specified hypotheses (Section~\ref{sec:hypotheses}) against the evidence.
+``Seed-matched'' values compare against PACT at seed 17; multi-seed values are means over three seeds.}
+\label{tab:scorecard}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{c >{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{9.6cm} c}
+\toprule
+\rowcolor{hdr}
+\hd{H} & \hd{Prediction} & \hd{Evidence} & \hd{Verdict} \\
+\midrule
+H1 & $-\Lcf$ loses more pair accuracy than accuracy &
+Seed-matched, $K{=}1$: accuracy $+0.3$\,pp, pair accuracy $-1.2$\,pp (direction as predicted);
+under $K{=}4$ the direction reverses ($+1.5$ / $+2.5$\,pp). Mechanism confirmed: $d$ rises from $-0.3$ to $>10$ nats (Fig.~\ref{fig:training}). &
+\verdict{vMixed}{INCONCLUSIVE} \\
+H2 & Lower TV/flip than CE-only; smaller $K{=}4$ gain &
+TV 5.6 vs.\ 7.4\%, flip 9.8 vs.\ 12.1\%, $\Delta_K$ $-0.7$ vs.\ $+2.4$\,pp; also below the Nimble recipe.
+Seed-matched: dropping the JSD term raises flips 8.0$\to$9.3\%, dropping all permuted views 8.0$\to$13.0\%. &
+\verdict{vGood}{SUPPORTED} \\
+H3 & $-\Lnr$ more confident on ablated contexts; no better pair accuracy &
+Confidence on ablated contexts was not logged for $-\Lnr$ (untested half). Pair accuracy $-8.0$\,pp,
+accuracy $-3.1$\,pp, TV 5.0$\to$11.7\%; with $\Lnr$ the ablated-context gap shrinks from 3.4 to $<$0.1 nats. &
+\verdict{vPart}{PARTLY TESTED} \\
+H4 & $-\Lemd$ raises Score MAE at similar Score accuracy &
+Score MAE 0.229$\to$0.282, but Score accuracy is \emph{not} similar (79.7$\to$84.4\%). Multi-seed: lowest Score MAE
+of all arms; Score accuracy above the Nimble recipe at all three seeds. &
+\verdict{vPart}{PARTLY SUPPORTED} \\
+H5 & ECE falls under $T(x)$, accuracy kept &
+Holdout ECE lower in 9/9 runs (PACT 10.8$\to$7.9\%); accuracy unchanged by construction; AURC slightly worse (3.95$\to$4.21). &
+\verdict{vGood}{SUPPORTED} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Position bias and permutation ensembling}
+\label{sec:posbias}
+Table~\ref{tab:ensemble} reports $K{=}4$ decoding. PACT has the lowest TV
+(5.6\% vs.\ 6.9\% for \run{Nimble recipe}, 7.4\% for \run{CE-only} and 12.0\%
+for the base model) and the lowest flip rate (9.8\% vs.\ 13.8\%, 12.1\% and
+23.5\%). It is also the only arm that gains nothing from ensembling
+($\Delta_K=-0.7$\,pp vs.\ $+2.4$\,pp for \run{CE-only}): its single pass
+already captures what the ensemble would recover, which is precisely the
+behaviour H2 predicts and the property that matters for single-pass serving.
+
+Fig.~\ref{fig:posbias} looks closer. The bias of the shipped model is
+concentrated: the median item has TV of 1.9\% and 31\% of items are below 1\%,
+while a small tail of items carries TV above 30\%. A local 4-bit sweep over
+$K\in\{1,\dots,4\}$ (single seed; supplementary) shows the residual TV of PACT
+plateauing at 7.3--7.6\% against 16.7--18.1\% for the base model,
+2.2--2.4$\times$ lower at every $K$, and accuracy peaking at $K{=}2$ for both
+models. The non-monotone accuracy curve is not a quantisation artefact: the
+BF16 multi-seed results show the same pattern (84.6\% at $K{=}1$, 83.8\% at
+$K{=}4$).
+
+
+\subsection{Calibration}
+\label{sec:calibration}
+The contextual temperature lowers holdout ECE in all nine multi-seed runs
+(Fig.~\ref{fig:calibration}c; per-run values in Table~\ref{tab:calibration},
+Appendix~\ref{app:tables}), on average from 10.8\% to 7.9\% for PACT, from
+9.5\% to 5.4\% for \run{Nimble recipe} and from 14.3\% to 10.3\% for
+\run{CE-only}; accuracy is unchanged by construction. For the shipped model the
+fitted slopes are negative for both the number of choices ($b=-0.42$) and the
+prompt length ($c=-0.48$), i.e.\ fields with many choices and long prompts are
+\emph{under}-confident relative to short binary ones, which a single scalar
+temperature cannot express (Fig.~\ref{fig:temperature}a).
+
+Three caveats are reported rather than omitted. First, the \emph{shape} of the
+fitted temperature is not stable across runs (Fig.~\ref{fig:temperature}b):
+over the nine multi-seed runs the slope on $\log C$ ranges from $-1.60$ to
+$+2.73$ and the slope on $\log(L/1000)$ from $-3.49$ to $+3.58$. With 226
+calibration records the two slopes are weakly identified; what transfers to the
+holdout is most plausibly the overall \emph{level} of the temperature, so a scalar
+temperature is a reasonable default and the contextual form should be
+regularised or fitted on a larger split. Second, on the calibration split of
+the shipped seed the fit leaves ECE essentially unchanged (5.5\%$\to$5.7\%);
+the gain appears only on the holdout. Third, because $T(x)$ re-ranks
+confidences across items, it slightly worsens selective risk (AURC
+3.95$\to$4.21 for PACT; Fig.~\ref{fig:calibration}b).
+
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.6\linewidth]{figures/permutation.png}
-\caption{Total-variation distance between the distributions produced
-under different answer-code orderings.}
-\label{fig:permutation}
-\end{figure}}{}
+\includegraphics[width=\columnwidth]{figures/temperature.pdf}
+\caption{Fitted contextual temperature. (a) Shipped model: $T(x)$ against prompt
+length for each number of allowed answers $C$ in the holdout. (b) $T$ against $C$
+at $L=700$ for every multi-seed run: for most runs $T>1$ (raw logits are
+over-confident), but the slopes differ in sign between seeds.}
+\label{fig:temperature}
+\end{figure}
 
-\IfFileExists{figures/ensemble_sweep.png}{%
+\subsection{Seed-matched ablations}
+\label{sec:ablation}
+Table~\ref{tab:ablation} compares each leave-one-out variant with PACT
+\emph{at the same seed}. Two caveats frame the reading. Each row is a single
+run, and the seed-17 PACT reference is itself a relatively weak draw
+(84.0\% accuracy vs.\ 84.6\% mean, and the highest ECE of its three seeds), so
+colours indicate directions, not significance. With that in mind, the pattern
+is consistent:
+\begin{itemize}
+\item \textbf{No single term raises raw accuracy.} Removing $\Lcf$ or $\Lemd$
+  leaves accuracy unchanged (84.3\% vs.\ 84.0\%); removing $\Lpc$ even raises
+  it (87.7\%), as does removing all four terms (\run{CE-only}, 87.3\% at this
+  seed, though not at the other two). Every removal also improves uncalibrated
+  NLL and ECE, i.e.\ at this seed the regularisers trade
+  calibration of the raw logits for other properties---a cost the post-hoc
+  temperature largely absorbs (Section~\ref{sec:calibration}).
+\item \textbf{The robustness properties are carried by the terms.} Removing
+  $\Lnr$, $\Lemd$, the permuted views or all four terms raises the flip rate
+  (8.0\% $\to$ 13.0--17.6\%) and TV; removing $\Lcf$, $\Lnr$, $\Lemd$ or the
+  permuted views raises Score MAE (0.229 $\to$ 0.282--0.356).
+\item \textbf{The necessity term is the most load-bearing.} Removing $\Lnr$
+  degrades accuracy ($-$3.1\,pp), pair accuracy ($-$8.0\,pp), AURC
+  (4.44$\to$6.63), Score MAE and position bias (TV 5.0$\to$11.7\%) at once.
+\end{itemize}
+
+\subsection{Where the differences are}
+\label{sec:where}
+Pooled accuracy hides a structured, seed-consistent pattern
+(Fig.~\ref{fig:domains}). Relative to \run{Nimble recipe}, PACT is better on
+Score fields at all three seeds (+6.2 to +15.6\,pp) and worse on Choice
+($-$3.4 to $-$4.8\,pp) and Boolean fields ($-$0.9 to $-$4.4\,pp) at all three
+seeds; per-kind accuracies are in Table~\ref{tab:kind}
+(Appendix~\ref{app:tables}). The Score advantage is what the ordinal term
+targets. By domain, PACT is better on \emph{public services} and worse on
+\emph{education} and \emph{media} at every seed. We had no pre-specified
+hypothesis about domains and report this as an observation for future work:
+the gains of a structure-derived objective are heterogeneous, and a pooled
+accuracy delta near zero can conceal offsetting per-kind effects of 5--15\,pp.
+
+The same split appears in calibration (Fig.~\ref{fig:errors}c). Averaged over
+seeds, PACT halves the ECE of Score fields relative to \run{Nimble recipe}
+(10.8\% vs.\ 21.2\%; 10.1\% vs.\ 16.6\% after $T(x)$) but is worse on Choice
+fields (16.0\% vs.\ 10.3\%), which is where its overall calibration deficit
+comes from. (Per-kind ECE is computed on 64--146 items and is biased upwards
+relative to the pooled value.)
+
+\textbf{How pairs fail.} Fig.~\ref{fig:errors}b breaks the shipped model's 162
+holdout pairs down by outcome. Both members are right in 67\% of pairs. When a
+pair is only half right, it is usually the counterfactual that is missed
+(35 pairs vs.\ 13 in which only the base is missed; for Boolean fields all 11
+half-right pairs miss the counterfactual). Most strikingly, in 39 pairs (24\%;
+33\% for Choice fields) the model gives the \emph{same} answer to both members,
+i.e.\ it ignores the edited fact altogether---74\% of all imperfect pairs. This
+is exactly the failure $\Lcf$ targets, and it remains the dominant error mode
+after training: the mean margin on training pairs ends far above $m$
+(Fig.~\ref{fig:training}b), but the behaviour does not fully transfer to new
+source families.
+Errors are also not always hesitant (Fig.~\ref{fig:errors}a): the median wrong
+answer has confidence 0.74 against 0.995 for right answers, yet 16 of the 58
+errors (28\%) are made with confidence $\ge0.9$, against 56 of 117 (48\%) for
+the base model.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/errors.pdf}
+\caption{Error analysis on the holdout. (a) Uncalibrated confidence of correct and
+wrong answers of the shipped model (log scale). (b) Outcomes of the 162 contrastive
+pairs by field kind (numbers: \% of pairs; right: share of pairs where both members
+receive the same answer, which guarantees at least one error). (c) ECE by field kind,
+mean over three seeds: wide light bars uncalibrated, narrow dark bars after $T(x)$.}
+\label{fig:errors}
+\end{figure*}
+
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/ensemble_sweep.png}
-\caption{Accuracy and residual position bias as the permutation ensemble
-size $K$ grows, shipped model vs.\ base model.}
-\label{fig:sweep}
-\end{figure}}{}
+\includegraphics[width=\columnwidth]{figures/domains.pdf}
+\caption{Per-kind and per-domain accuracy difference, PACT minus
+\run{Nimble recipe}, on the holdout. Markers: seeds; bars: mean. $^{*}$Same sign
+at all three seeds.}
+\label{fig:domains}
+\end{figure}
 
-\section{Related work}
+\subsection{Training dynamics}
+\label{sec:dynamics}
+Fig.~\ref{fig:training} shows that the terms are optimised as intended. The
+pair margin $d$ starts negative ($-0.3$ nats: the base model moves the log-odds
+the wrong way), first exceeds the margin $m=2$ at step 20 and, after early
+oscillation, ends near 10--13 nats. The logit gap on ablated contexts falls from 3.4 to below 0.1
+nats, i.e.\ the model learns to be indifferent between $y_a$ and $y_b$ exactly
+where the certificate says it should. $\Lnr$ is also the noisiest term, with
+isolated spikes when a batch contains an ablated context the model still
+separates strongly.
 
-\textbf{Serving typed decisions.} Reading candidate-token logits at a single
-position, rather than generating and parsing structured text, is the
-mechanism behind Jev-style System-One decisions and is described for this
-model family by Rogge (2026). Bespoke-MiniCheck (Tang et al., 2024; Bespoke
-Labs, 2025) applies the same idea to a single boolean field.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/training.pdf}
+\caption{Training dynamics of the shipped run (EMA-smoothed). (a) Loss terms.
+(b) Mean pair margin $d$ of Eq.~\eqref{eq:did} (dashed: $m=2$) and mean gap
+$|z_{y_a}-z_{y_b}|$ on ablated contexts $x^{\circ}$.}
+\label{fig:training}
+\end{figure}
 
-\textbf{Counterfactual and contrastive supervision.} Counterfactually
-augmented data (Kaushik et al., 2020) shows that minimal edits that flip a
-label reduce reliance on spurious features; contrast sets (Gardner et al.,
-2020) use the same construction for evaluation. Both typically feed the
-edited examples to an unchanged objective. Our difference-in-differences
-margin instead makes the \emph{pairing} part of the loss, and its invariance
-to a shared offset is what distinguishes it from simply training on both
-members.
+\subsection{Hypothesis scorecard}
+\label{sec:scorecard}
+Table~\ref{tab:scorecard} confronts each pre-specified criterion with the
+evidence. Two hypotheses are supported, two partly, and one is inconclusive;
+none is contradicted outright, but H1---the motivating idea of the
+paper---does not receive clean support from a single-seed ablation.
 
-\textbf{Position and option-order bias.} Multiple-choice LLM evaluation is
-known to depend on option order and label identity (Zheng et al., 2024;
-Pezeshkpour and Hruschka, 2024), with debiasing usually applied at inference
-by permuting and averaging. We additionally train against it, which is what
-makes single-pass serving --- the reason this model family exists --- cheap
-again.
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
 
-\textbf{Calibration.} Temperature scaling (Guo et al., 2017) is the standard
-post-hoc method; we keep its objective and let the temperature depend on two
-observable prompt statistics.
+\textbf{What the evidence supports.} The results do not support the
+proposition that structure-derived terms raise accuracy over a well-reproduced
+cross-entropy baseline. They do support three narrower claims: (i) the terms
+reduce answer-code position bias and ordinal error, the two failure modes they
+were designed around; (ii) they stabilise an optimiser that is otherwise
+significantly worse and highly seed-sensitive; and (iii) post-hoc
+calibration of this model family is cheap and lowers ECE in every run, although
+only the overall temperature level, not its contextual shape, is reliably
+estimated. For a practitioner
+who serves single-pass decisions over rubric fields, or who cannot afford $K$
+forward passes to average out position bias, these are the properties that
+matter; for a practitioner who only needs pooled accuracy, the published recipe
+is sufficient and about five times cheaper to train.
 
-\textbf{Ordinal targets.} Squared-EMD losses for ordered classes are
-standard in label-distribution learning (Hou et al., 2017); we apply them to
-rubric fields whose expected level the serving path already computes.
+\textbf{What remains open.} The dominant holdout failure is still the one the
+pair margin was designed for: in a quarter of the pairs the model answers both
+members identically, ignoring the edited fact (Section~\ref{sec:where}). The mean
+margin is met on training pairs but the behaviour does not fully transfer to
+unseen source families, which points to margin schedules, harder negative edits or
+pair-level data augmentation as the most promising next steps.
 
-\textbf{Parameter-efficient tuning.} LoRA (Hu et al., 2022) with
-rank-stabilised scaling (Kalajdzievski, 2023) and LoRA+ (Hayou et al.,
-2024); QLoRA (Dettmers et al., 2023) for the 24\,GB configuration.
+\textbf{Cost.} Each pair contributes 2.5$\times$ the rows of the baseline
+(Table~\ref{tab:cost}). Measured wall-clock per run is 1.37\,h for PACT against
+0.50\,h for \run{CE-only} and 0.26\,h for the one-epoch \run{Nimble recipe}, and
+peak GPU memory is 28.8\,GiB against 21.8\,GiB. Cost scales with the number of
+views rather than with the loss terms: dropping $\Lpc$ alone saves nothing,
+while dropping the permuted views saves 45\% of the time. Serving cost is
+unchanged.
 
+\input{tables/cost.tex}
+
+\textbf{Selection noise.} Checkpoint selection is itself a source of variance
+comparable to the effects studied here (Fig.~\ref{fig:selection}). The shipped
+model is the PACT seed with the lowest selection-split NLL (seed 18), yet it has
+the lowest holdout accuracy of the three PACT seeds (82.1\%). More strikingly,
+the checkpoint with the lowest selection NLL of \emph{all} nine runs
+(\run{CE-only} seed 18: NLL 0.112, 97.4\% selection accuracy) has the
+\emph{lowest} holdout accuracy of all fine-tuned runs (75.6\%). With only two
+source families and 116 records, the selection split rewards fitting those
+families rather than transfer, which is one more reason to report seeds
+individually and to test differences in pairs.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/selection.pdf}
+\caption{Selection-split trajectories of the three multi-seed arms (line style:
+seed 17 solid, 18 dashed, 19 dotted; stars: selected checkpoints). \run{CE-only}
+converges slowly and reaches the best selection scores, which do not carry over
+to the holdout (Table~\ref{tab:significance}).}
+\label{fig:selection}
+\end{figure}
+
+% =====================================================================
 \section{Limitations}
+\label{sec:limits}
+The holdout contains 324 synthetic, model-labelled items from six source
+families. It is narrow, and its labels come from the same family of models as
+the training labels, so shared errors are possible and undetectable from inside
+the benchmark. $\Lnr$ and $\Lcf$ trust the certificate: a wrong necessity check
+teaches indifference where the evidence actually decides. We apply the
+necessity term to one ablated view per pair to bound cost. The ablations use one
+seed each, so per-term claims are directional; the significance tests cover only
+the three multi-seed arms. The loss weights were fixed a priori and not tuned,
+so the negative accuracy findings are for this setting, not for every weighting.
+All claims concern one base model at one scale with one adapter rank.
 
-The holdout is 324 synthetic, model-labelled examples from six source
-families; it is narrow, and its labels were produced by the same family of
-models that produced the training labels, so shared errors are possible and
-are not detectable from inside the benchmark. $\Lnr$ and $\Lcf$ both trust
-the certificate: if a certificate's necessity check is wrong, the necessity
-term teaches indifference where the evidence actually decides. We apply the
-necessity term to one ablated view per pair, not both, to bound cost.
-Permutation ensembling multiplies serving cost by $K$, which is why the
-headline comparison uses $K=1$. The five leave-one-out ablations report a
-single seed each; \S6.5's significance tests are therefore limited to the
-three multi-seed arms, and a claim about any individual loss term's effect
-on raw accuracy (as opposed to pair accuracy or calibration, where the
-multi-seed arms already carry the evidence) should be read as suggestive, not
-confirmed. Finally, all claims here concern one base model at one scale with
-one adapter rank.
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+Contrastive curation with certificates contains supervision that cross-entropy
+cannot express: the offset-free effect of an edited fact, the arbitrariness of
+answer codes, the indifference certified by evidence removal, and the order of
+rubric levels. PACT turns each into a training term without changing the
+serving contract. Evaluated under pre-specified falsification criteria, the
+terms do not make the model more accurate than a well-reproduced baseline, but
+they make it less sensitive to answer-code order, better on ordinal fields and
+more stable across seeds, and a three-parameter temperature makes its
+probabilities usable. We hope the protocol---a reproduced baseline, a
+matched-optimiser control, seed-matched ablations and paired tests---is as
+useful as the method.
 
-\section*{References}
-{\small
-\begin{flushleft}
-Bespoke Labs. \emph{Bespoke Nimble: Data, Model, Recipe for an open Jev.} 2026.\\[2pt]
-Bespoke Labs, Tang, L., Durrett, G. \emph{Bespoke-MiniCheck.} 2025.\\[2pt]
-Dettmers, T., Pagnoni, A., Holtzman, A., Zettlemoyer, L. \emph{QLoRA: Efficient Finetuning of Quantized LLMs.} NeurIPS, 2023.\\[2pt]
-Gardner, M., et al. \emph{Evaluating Models' Local Decision Boundaries via Contrast Sets.} Findings of EMNLP, 2020.\\[2pt]
-Guo, C., Pleiss, G., Sun, Y., Weinberger, K. \emph{On Calibration of Modern Neural Networks.} ICML, 2017.\\[2pt]
-Hayou, S., Ghosh, N., Yu, B. \emph{LoRA+: Efficient Low Rank Adaptation of Large Models.} ICML, 2024.\\[2pt]
-Hou, P., Geng, X., Zhang, M.-L. \emph{Squared Earth Mover's Distance-based Loss for Training Deep Neural Networks.} arXiv:1611.05916, 2017.\\[2pt]
-Hu, E., et al. \emph{LoRA: Low-Rank Adaptation of Large Language Models.} ICLR, 2022.\\[2pt]
-Kalajdzievski, D. \emph{A Rank Stabilization Scaling Factor for Fine-Tuning with LoRA.} arXiv:2312.03732, 2023.\\[2pt]
-Kaushik, D., Hovy, E., Lipton, Z. \emph{Learning the Difference that Makes a Difference with Counterfactually-Augmented Data.} ICLR, 2020.\\[2pt]
-Pezeshkpour, P., Hruschka, E. \emph{Large Language Models Sensitivity to the Order of Options in Multiple-Choice Questions.} Findings of NAACL, 2024.\\[2pt]
-Rogge, N. \emph{Post on single-token decoding for typed decisions}, 2026.\\[2pt]
-Tang, L., Laban, P., Durrett, G. \emph{MiniCheck: Efficient Fact-Checking of LLMs on Grounding Documents.} EMNLP, 2024.\\[2pt]
-Zheng, C., Zhou, H., Meng, F., Zhou, J., Huang, M. \emph{Large Language Models Are Not Robust Multiple Choice Selectors.} ICLR, 2024.
-\end{flushleft}
-}
+% =====================================================================
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
 
-\appendix
-\section{Applied demonstration: an interactive decision task}
-\label{sec:tetris}
+% =====================================================================
+\appendices
 
-Everything above evaluates the adapter on the task it was trained for: a
-static document plus a schema question. As a separate, qualitative check of
-how far the same serving mechanism generalises, we reused it unmodified for a
-task with no document at all — choosing where to place falling pieces in a
-from-scratch Tetris implementation. At every piece, the game engine (not the
-model) enumerates every legal placement and works out its consequences two
-plies deep — rows cleared, holes created, resulting stack height and skyline
-bumpiness, both now and after the best placement of the already-visible next
-piece. Each option becomes one \texttt{choice\_description} in an ordinary
-\texttt{PactScorer} schema call, exactly the contract \S2.1 describes; the
-model reads one token and the highest-logit candidate is played. No part of
-the model, the prompt format or the adapter loading path differs from the
-main evaluation — only the domain of the schema question changes, from a
-business document to a game state.
+\section{Additional Tables}
+\label{app:tables}
+Table~\ref{tab:kind} breaks accuracy down by field kind for every run and
+seed; Table~\ref{tab:calibration} gives the fitted temperatures and ECE before
+and after calibration on both the calibration split and the holdout.
 
-\paragraph{The shipped adapter, unmodified.} Given this prompting, the
-adapter fine-tuned in \S5 does not reliably pick the option the two-ply
-search ranks best, even when that option is marked as clearing a line — the
-base model this adapter comes from is a general-purpose classifier and was
-never trained to weigh sequential-decision trade-offs against each other, and
-PACT's training objective (\S3) does not change that; it targets label
-accuracy and calibration on the curated pairs, not action selection. This is
-the expected outcome, not a failure of \S5's results — it is included here to
-be precise about what the held-out accuracy numbers do and do not predict.
+\input{tables/kind.tex}
+\input{tables/calibration.tex}
 
-\paragraph{Closing the gap with policy-gradient fine-tuning.} We then further
-fine-tuned the same LoRA adapter with REINFORCE (single-step, i.e.\ a
-contextual bandit over the candidate placements, not full episodic RL),
-using the exact two-ply heuristic score of the sampled placement as the
-reward and the mean heuristic score across that state's candidates as a
-zero-cost, per-state baseline. No architecture, prompt or answer-code changed
-— the same \texttt{PactScorer}-compatible PEFT adapter that served \S5's
-evaluation is now trained toward a different objective, with training and
-serving sharing the identical prompt-construction code so there is no
-train/serve skew. The fraction of sampled moves matching the heuristic's own
-top-ranked candidate (\texttt{top\_pick\_rate}) rose from 0.19 at step 1 to
-$\geq 0.875$ within 200 steps and stayed at 0.75--1.0 for the remainder of
-1{,}574 steps on 2$\times$40GB GPUs (full logs and the trained adapter are in
-the accompanying repository's \texttt{RL/} bundle). Under a fixed 400-piece
-evaluation cap, greedy (argmax) play scored a mean of 17{,}940 at step 50 and
-17{,}340 at step 1{,}550 across 5 games each — flat, because the cap is
-reached before the model tops out, not because it stopped improving; one
-uncapped evaluation game at the final checkpoint reached 1{,}500 pieces,
-598 lines and a score of 65{,}700 before we stopped it.
+\section{Implementation and Reproducibility}
+\label{app:impl}
+The training driver records, per run, the resolved configuration, the data
+audit and file hashes, the view-cache fingerprint, library versions, device
+information, the training plan, the full step log, the selection-split history,
+the fitted calibrator and every per-item holdout prediction with its
+probabilities. Adapters are saved with the recipe's \texttt{schema\_config.json}
+contract, including the SHA-256 of the scoring-prompt implementation, so that a
+checkpoint is rejected if the prompt code it was trained against has changed.
+All figures and data tables in this paper are regenerated from these records by
+a single script. A 4-bit NF4 configuration for 24\,GB GPUs is provided but its
+results are not mixed with the BF16 numbers reported here; the only 4-bit
+numbers in the paper are the supplementary $K$-sweep and the base-model
+predictions used for the paired tests. Table~\ref{tab:hparams} lists every
+hyper-parameter; none was tuned on the holdout.
 
-\paragraph{Reading this appendix.} This is a single training run with no
-seeds, no held-out repetitions and no statistical test, reported for exactly
-what it is: a demonstration that (a) the PACT/Nimble serving contract is a
-general typed-choice interface, not something specific to the document
-benchmark, and (b) a model shown to be a weak sequential decision-maker
-out of the box under that interface can be measurably improved at the
-decision task itself, with the same lightweight adapter mechanism, without
-touching its document-classification behaviour. It should not be read as
-evidence about \S5's holdout claims in either direction.
+\input{tables/hparams.tex}
+
+\section{Applied Demonstration: Sequential Decisions in Tetris}
+\label{app:tetris}
+Everything above evaluates the adapter on a static document plus a schema
+question. As a qualitative check of how general the serving interface is, we
+reused it unmodified for a task with no document at all: choosing where to
+place falling pieces in a from-scratch Tetris implementation. At every piece
+the game engine---not the model---enumerates the legal placements and computes
+their consequences two plies deep (rows cleared, holes, stack height and
+bumpiness, now and after the best placement of the visible next piece; standard
+Tetris features~\cite{thiery2009tetris}). Each option becomes one choice
+description in an ordinary schema call; the model reads one token and the
+highest-logit option is played.
+
+\textbf{Policy-gradient adaptation.} Unmodified, the adapter does not reliably
+choose the option the two-ply search ranks best: it was trained to classify
+documents, not to trade off sequential consequences. We therefore further
+fine-tuned the same LoRA adapter with single-step REINFORCE~\cite{williams1992reinforce}
+(a contextual bandit over candidate placements), using the two-ply score of the
+sampled placement as reward and the mean score over that state's candidates as
+a per-state baseline, with an entropy bonus of 0.01, learning rate
+$10^{-5}$ and 32 moves per update on 2$\times$40\,GB GPUs. Prompt construction
+is shared between training and serving, so there is no train/serve skew.
+
+\textbf{Results.} The sampled top-pick rate---agreement with the search's
+best-ranked option---rose from 19\% at the first update to 87.5\% by step
+16, and its 100-step average stayed between 88\% and 99\% from step 200 to the
+end of the 1{,}574-step run (Fig.~\ref{fig:rl}a). The training game itself
+never topped out after step 14, clearing 19{,}975 lines over roughly 50{,}000
+pieces. Greedy evaluation with a 400-piece cap (Fig.~\ref{fig:rl}b) is flat at
+a mean of 17{,}000--18{,}000 points and about 158 lines, close to the ceiling of
+160 lines that 400 pieces permit, so this protocol saturates and cannot show
+improvement; one uncapped greedy game at the final checkpoint reached 1{,}500
+pieces and 598 lines (score 65{,}700) before it was stopped.
+
+\textbf{Live play in the served app.} The repository includes a three-minute
+recording at 2$\times$ speed (\texttt{media/pact\_rl\_tetris\_2x.mp4}) of the
+final checkpoint driving the unmodified browser app through the ordinary
+serving path, in 4-bit on a single 16\,GB consumer GPU. In six minutes of real
+play the model cleared more than 130 lines in one continuous game and reached
+level 13 without topping out, although gravity accelerates with every level and
+each move requires a fresh forward pass.
+
+\textbf{Reading this appendix.} This is a single run without seeds, held-out
+repetitions or a greedy pre-training baseline, and the policy learns to follow
+a ranking that the engine already computes. It demonstrates only that the
+single-token interface is a general typed-choice interface and that the same
+lightweight adapter can be re-targeted to a new decision task; it carries no
+evidence about the holdout claims above.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/rl_tetris.pdf}
+\caption{REINFORCE on Tetris placement choices. (a) Share of sampled moves that
+match the two-ply search's top-ranked option (faint: per update; bold: 50-step
+mean). (b) Greedy evaluation every 50 steps, 5 games capped at 400 pieces
+(line: mean; dashed: best game).}
+\label{fig:rl}
+\end{figure}
 
 \end{document}

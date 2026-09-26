@@ -5,7 +5,7 @@ either of the two focus-evidence sentences makes the focus fact *unknown* even
 with all the remaining text present. The released recipe throws those ablated
 contexts away, because "missing evidence" has no label.
 
-PACT keeps them, unlabelled. Section 3.4 of the paper uses them as a constraint
+PACT keeps them, unlabelled. Sec. IV-D of the paper uses them as a constraint
 instead of a target: with the focus evidence gone, the two outcomes that the
 focus fact discriminates must become indistinguishable to the model.
 

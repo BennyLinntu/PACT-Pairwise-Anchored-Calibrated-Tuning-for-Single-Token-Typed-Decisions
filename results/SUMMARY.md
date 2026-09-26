@@ -58,7 +58,7 @@ Its own holdout numbers:
 
 ## Reading the ablations
 
-The ablation runs are a test, not a search. `paper/paper.md` §5.5 states in advance what each one should do if its term is working: compare against that, not against the best cell in the table. Seed-to-seed spread is in the ± column.
+The ablation runs are a test, not a search. `paper/main.pdf` (Sec. V-E) states in advance what each one should do if its term is working: compare against that, not against the best cell in the table. Seed-to-seed spread is in the ± column.
 
 ## Caveats
 

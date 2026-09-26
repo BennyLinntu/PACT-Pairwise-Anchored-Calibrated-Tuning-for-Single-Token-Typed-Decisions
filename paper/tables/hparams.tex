@@ -1,0 +1,33 @@
+\begin{table}[t]
+\centering
+\caption{Hyper-parameters of PACT (read from the resolved run configuration). The
+Nimble recipe differs only in: 1 epoch, linear schedule, no rsLoRA, LoRA+ ratio 1, no extra
+views or terms.}
+\label{tab:hparams}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{l >{\raggedright\arraybackslash}p{5.2cm}}
+\toprule
+\rowcolor{hdr}
+\hd{Setting} & \hd{Value} \\
+\midrule
+Base model & Qwen3.5-9B, BF16, SDPA attention \\
+Max. prompt length & 2,048 tokens (longest seen: 1,098) \\
+LoRA & rank 16, $\alpha$=32, dropout 0.05, rsLoRA \\
+LoRA targets & q,k,v,o,gate,up,down (language model) \\
+Optimiser & AdamW, lr $5\times10^{-5}$, weight decay 0 \\
+LoRA+ ratio & 8 (lr of $B$ / lr of $A$) \\
+Schedule & cosine, warm-up 10\%, 2 epochs \\
+Batch & 2 pairs $\times$ 2 accumulation = 8 primary rows \\
+Gradient clipping & global norm 1.0 \\
+Loss weights & $\lambda_{\mathrm{cf}}$=0.5, $\lambda_{\mathrm{pc}}$=0.5, $\lambda_{\mathrm{nr}}$=0.2, $\lambda_{\mathrm{emd}}$=0.3 \\
+Margins & $m$=2, $\varepsilon$=0; ramp 10\% of steps \\
+Length bucketing & 64 groups per bucket \\
+Selection & every 25\% of training, lowest selection NLL \\
+Evaluation & $K$=4 permutations, ECE with 15 bins \\
+Calibration & contextual $T(x)$, L-BFGS, 120 iterations \\
+Seeds & 17, 18, 19 (ablations: 17) \\
+\bottomrule
+\end{tabular}
+\end{table}

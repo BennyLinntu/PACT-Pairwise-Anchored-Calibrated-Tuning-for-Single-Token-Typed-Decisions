@@ -441,7 +441,7 @@ def main():
         from pact.report import build
 
         try:
-            build(output_dir, BUNDLE_ROOT / "paper", log=log)
+            build(output_dir, log=log)
         except Exception as error:  # noqa: BLE001 - a table must not lose a sweep
             log(f"[report] FAILED: {type(error).__name__}: {error}")
 

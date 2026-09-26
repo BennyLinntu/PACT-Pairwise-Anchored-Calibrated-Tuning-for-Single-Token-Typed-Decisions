@@ -72,7 +72,7 @@ class ModelConfig:
 @dataclass
 class LossConfig:
     ce_weight: float = 1.0
-    # Counterfactual difference-in-differences margin (paper Section 3.2).
+    # Counterfactual difference-in-differences margin (paper Sec. IV-B).
     cf_weight: float = 0.5
     cf_margin: float = 2.0
     # Permutation consistency (Section 3.3).

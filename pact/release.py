@@ -245,7 +245,7 @@ def write_summary(path, cfg, records, selection, aggregate, figures, exported, o
         "",
         "## Reading the ablations",
         "",
-        "The ablation runs are a test, not a search. `paper/paper.md` §5.5 states in "
+        "The ablation runs are a test, not a search. `paper/main.pdf` (Sec. V-E) states in "
         "advance what each one should do if its term is working: compare against that, "
         "not against the best cell in the table. Seed-to-seed spread is in the ± column.",
         "",
@@ -257,19 +257,6 @@ def write_summary(path, cfg, records, selection, aggregate, figures, exported, o
     ]
     Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
-
-
-def _mirror_to_paper(figures, log):
-    """Put the same PNGs next to the LaTeX, so \\includegraphics just works."""
-    if not figures:
-        return
-    from pact import BUNDLE_ROOT
-
-    target = BUNDLE_ROOT / "paper" / "figures"
-    target.mkdir(parents=True, exist_ok=True)
-    for path in figures:
-        shutil.copy2(path, target / Path(path).name)
-    log(f"[release] mirrored {len(figures)} figure(s) to {target}")
 
 
 def package(cfg, output_dir, destination, log=print):
@@ -328,7 +315,6 @@ def package(cfg, output_dir, destination, log=print):
             drawn = figure_module.build(selection["record"]["_dir"], output_dir,
                                         destination / "figures",
                                         cfg.evaluation.ece_bins, log)
-            _mirror_to_paper(drawn, log)
     write_summary(destination / "SUMMARY.md", cfg, records, selection, aggregate, drawn,
                   exported, output_dir)
     log(f"[release] packaged {len(records)} run(s) into {destination}")

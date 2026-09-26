@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{Data splits. Splits are disjoint at the level of source families; every record belongs
+to a two-record contrastive pair. The holdout is never used for selection or calibration.}
+\label{tab:data}
+\setlength{\tabcolsep}{2.6pt}
+\footnotesize
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{l c r r ccc l}
+\toprule
+\rowcolor{hdr}
+\hd{Split} & \hd{Fam.} & \hd{Records} & \hd{Pairs} & \hd{Choice} & \hd{Bool.} & \hd{Score} & \hd{Role} \\
+\midrule
+Training & 30 & 2{,}334 & 1{,}167 & 766 & 796 & 772 & train \\
+Selection & 2 & 116 & 58 & 26 & 32 & 58 & select \\
+Calibration & 2 & 226 & 113 & 64 & 60 & 102 & fit $T$ \\
+\rowcolor{pactrow}Holdout (frozen) & 6 & 324 & 162 & 146 & 114 & 64 & test only \\
+\bottomrule
+\end{tabular}
+\end{table}

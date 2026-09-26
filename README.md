@@ -4,14 +4,60 @@ A fine-tuning recipe that replaces **only the training objective, the batching
 and the probability head** of Nimble, a single-token typed-decision model. The
 prompt, the one-token answer codes and the saved adapter format are
 unchanged, so a PACT adapter loads anywhere a Nimble adapter loads. The full
-write-up is in [`paper/main.pdf`](paper/main.pdf) ([source](paper/main.tex),
-[Markdown version](paper/paper.md)).
+write-up is in [`paper/main.pdf`](paper/main.pdf) ([LaTeX source](paper/main.tex), IEEE
+conference format; every figure and table is regenerated from `results/` by
+[`paper/build_assets.py`](paper/build_assets.py)).
 
 As a live, playable demonstration that the same serving mechanism works as a
 general typed-choice interface — not just on the document benchmark it was
 trained for — this repo also ships **a from-scratch Tetris the adapter can
-play**, plus a further reinforcement-learning fine-tune that measurably
-improves it at that game. See [Play Tetris](#play-tetris-no-setup) below.
+play**, plus a further reinforcement-learning fine-tune (PACT-RL) that teaches it
+to pick the game engine's best-ranked move far more reliably. See
+[Watch PACT-RL play](#watch-pact-rl-play) and [Play Tetris](#play-tetris-no-setup) below.
+
+---
+
+## Results at a glance
+
+Frozen 324-item holdout, single-pass decoding, mean ± s.d. over seeds 17/18/19
+(full tables, tests and ablations in [`paper/main.pdf`](paper/main.pdf)):
+
+| Run | Accuracy | Pair acc. | ECE → with T(x) | Score MAE | Answer flips under relabelling (K=4) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Base model (no adapter) | 66.4 | 35.8 | 24.6 → – | 0.571 | 23.5 |
+| Nimble recipe (reproduced) | **85.2 ± 2.1** | 71.0 ± 3.9 | **9.5 → 5.4** | 0.311 | 13.8 |
+| CE-only (PACT's optimiser, no new terms) | 82.2 ± 6.0 | 70.2 ± 6.2 | 14.3 → 10.3 | 0.322 | 12.1 |
+| **PACT** | 84.6 ± 2.8 | **73.3 ± 6.2** | 10.8 → 7.9 | **0.232** | **9.8** |
+
+What this does and does not show:
+
+* **Accuracy:** PACT is statistically indistinguishable from the reproduced
+  Nimble recipe (paired McNemar p ≥ 0.50 at every seed). It does not beat it.
+* **Against the matched control** (same optimiser and schedule, cross-entropy
+  only) PACT is significantly more accurate at 2 of 3 seeds (p = 0.008, 0.035),
+  halves the seed-to-seed spread and lowers NLL by 26 %.
+* **Where the terms help:** the lowest answer-code position bias and the lowest
+  ordinal error on rubric (Score) fields of all runs.
+* **Where they don't:** seed-matched ablations show no single term raises raw
+  accuracy, and the Nimble recipe remains the best-calibrated run.
+
+## Watch PACT-RL play
+
+[![PACT-RL plays Tetris (click for the 3-minute video)](media/pact_rl_tetris_preview.gif)](media/pact_rl_tetris_2x.mp4)
+
+[`media/pact_rl_tetris_2x.mp4`](media/pact_rl_tetris_2x.mp4) — 3 minutes at
+**2× speed** (6 minutes of real play) of the RL-tuned adapter
+(`RL/runs/tetris-rl/latest`) playing the real app in this repo, one forward pass
+per piece, on a single 16 GB consumer GPU with the 4-bit config. Nothing is
+scripted: the engine lists the legal placements, the model picks one. In one
+continuous game it cleared more than 130 lines and reached level 13 without
+topping out. How it was recorded: [`media/README.md`](media/README.md). To
+reproduce it live:
+
+```bash
+PACT_ADAPTER_DIR=RL/runs/tetris-rl/latest python tetris/server.py
+# then open http://127.0.0.1:8848/index_en.html and press "Let PACT play"
+```
 
 ---
 
@@ -180,15 +226,25 @@ them. Two GPUs run two jobs at once and stay busy until the tail of the sweep.
 
 **Memory.** Per GPU: 9B BF16 weights ≈ 16.8 GiB, activations with gradient
 checkpointing ≈ 6.6 GiB at 10 rows × 2,048 tokens, LoRA state negligible —
-roughly 24 GiB estimated peak against 47.8 GiB, printed at run start and
-measured into `train_report.json`. If a card ever does OOM, lower
+roughly 24 GiB *estimated* peak, printed at run start; the peak *measured* into
+`train_report.json` was 28.8 GiB for PACT (21.8 GiB for the cross-entropy-only
+runs) against 47.8 GiB available. If a card ever does OOM, lower
 `optim.groups_per_batch` to 1 and raise `optim.grad_accum` to 4, or set
 `optim.perm_view_prob` / `optim.necessity_prob` to 0.5.
 
-**Cost.** One epoch is 1,338 pairs ≈ 4,000 row-forwards (vs 2,676 for the
-baseline, because of the extra views): roughly 1.5× the baseline's step cost.
-The default recipe is 2 epochs with best-checkpoint selection, 14 jobs, two at
-a time.
+**Cost.** Each training pair contributes five views (two primary, two
+relabelled, one evidence-ablated) instead of two, i.e. 2.5× the rows of the
+baseline. Measured on the runs in `results/`: 1.37 h per PACT run vs 0.50 h for
+the same schedule with cross-entropy only and 0.26 h for the one-epoch Nimble
+recipe (Table VIII of the paper). The default recipe is 2 epochs with
+best-checkpoint selection, 14 jobs, two at a time.
+
+### Rebuilding the paper
+
+```bash
+python paper/build_assets.py          # every figure (PDF+PNG) and data table, from results/ and RL/runs/
+cd paper && latexmk -pdf main         # or: pdflatex main && bibtex main && pdflatex main && pdflatex main
+```
 
 ### Useful flags
 
@@ -273,7 +329,7 @@ scorers after merging.
 | --- | --- | --- |
 | [`tetris/`](tetris/) | Browser-playable Tetris; the shipped adapter is an optional AI player (`python tetris/server.py`) | a GPU, for AI play only |
 | [`desktop/`](desktop/) | The same game packaged as a Windows/Mac app — manual play, no Python needed | nothing, prebuilt exes included |
-| [`RL/`](RL/) | A self-contained REINFORCE fine-tune that makes the adapter a measurably better Tetris player, and a real completed 1,574-step run | a GPU, to retrain; nothing, to read the results |
+| [`RL/`](RL/) | A self-contained REINFORCE fine-tune (PACT-RL) that raises agreement with the engine's best-ranked move from 19% to ~95%, and a real completed 1,574-step run | a GPU, to retrain; nothing, to read the results |
 
 The Tetris app hands the same `PactScorer` contract a short list of legal
 piece placements, each already described in plain language by a two-ply
@@ -323,7 +379,9 @@ pact/
   tetris_env.py                pure-Python port of the Tetris engine, for RL rollouts
   train_tetris_rl.py           the Tetris RL fine-tune (REINFORCE)
 tests/                        44 offline tests, CPU only
-paper/                        main.pdf / main.tex / paper.md, tables and figures
+paper/                        main.pdf / main.tex / refs.bib; build_assets.py regenerates
+                              figures/ and tables/ from results/ and RL/runs/
+media/                        pact_rl_tetris_2x.mp4 (3-min gameplay recording) + preview GIF
 results/                      the shipped model + every run's tables, figures and predictions
 tetris/                       browser-playable Tetris + server.py (AI play backend)
 desktop/                      the same game as a Windows/Mac app, prebuilt exes in desktop/dist/

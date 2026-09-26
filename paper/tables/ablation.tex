@@ -1,0 +1,30 @@
+\begin{table*}[t]
+\centering
+\caption{Seed-matched leave-one-out ablations (seed 17 for every row; single-pass except the
+last two columns, which use $K{=}4$). Cells are coloured by the change relative to the full
+method in the first row (seed 17):
+\swatch{hurtB}\,removing the term clearly hurts, \swatch{hurtA}\,slightly hurts,
+\swatch{helpA}\,slightly helps, \swatch{helpB}\,clearly helps; uncoloured: change below a
+quarter of the ``clear'' threshold (2\,pp for accuracy-type metrics). One seed per row: read colours as
+directions, not as significance.}
+\label{tab:ablation}
+\setlength{\tabcolsep}{5.6pt}
+\begin{tabular}{l cccccc cc}
+\toprule
+\rowcolor{hdr}
+\hd{Variant (seed 17)} & \hd{Acc.\,$\uparrow$} & \hd{Pair acc.\,$\uparrow$} & \hd{NLL\,$\downarrow$} &
+\hd{ECE\,$\downarrow$} & \hd{AURC\,$\downarrow$} & \hd{Score MAE\,$\downarrow$} &
+\hd{TV$_{K=4}$\,$\downarrow$} & \hd{Flip$_{K=4}$\,$\downarrow$} \\
+\midrule
+\rowcolor{pactrow}\textbf{PACT (ours)} & 84.0 & 72.8 & 0.659 & 12.6 & 4.44 & 0.229 & 5.0 & 8.0 \\
+\midrule
+$-\mathcal{L}_{\mathrm{CF}}$ & 84.3 & \cellcolor{hurtA}71.6 & \cellcolor{helpB}0.491 & \cellcolor{helpA}11.1 & \cellcolor{helpB}2.74 & \cellcolor{hurtB}0.284 & 5.3 & \cellcolor{hurtA}9.6 \\
+$-\mathcal{L}_{\mathrm{PC}}$ & \cellcolor{helpB}87.7 & \cellcolor{helpB}79.6 & \cellcolor{helpB}0.513 & \cellcolor{helpB}7.5 & \cellcolor{helpB}2.82 & \cellcolor{helpB}0.138 & 4.8 & \cellcolor{hurtA}9.3 \\
+$-\mathcal{L}_{\mathrm{NR}}$ & \cellcolor{hurtB}80.9 & \cellcolor{hurtB}64.8 & \cellcolor{helpB}0.545 & \cellcolor{helpB}10.3 & \cellcolor{hurtB}6.63 & \cellcolor{hurtB}0.344 & \cellcolor{hurtB}11.7 & \cellcolor{hurtB}17.6 \\
+$-\mathcal{L}_{\mathrm{EMD}}$ & 84.3 & \cellcolor{hurtB}70.4 & \cellcolor{helpB}0.388 & \cellcolor{helpB}5.8 & \cellcolor{helpB}3.43 & \cellcolor{hurtB}0.282 & \cellcolor{hurtB}8.9 & \cellcolor{hurtB}15.7 \\
+$-$permuted views & \cellcolor{helpA}84.9 & \cellcolor{helpA}74.1 & \cellcolor{helpB}0.510 & \cellcolor{helpB}8.8 & \cellcolor{helpA}3.51 & \cellcolor{hurtB}0.356 & \cellcolor{hurtB}6.6 & \cellcolor{hurtB}13.0 \\
+\midrule
+CE-only (all four off) & \cellcolor{helpB}87.3 & \cellcolor{helpB}75.9 & \cellcolor{helpB}0.454 & \cellcolor{helpB}7.6 & \cellcolor{helpB}2.66 & \cellcolor{helpA}0.182 & \cellcolor{hurtB}9.0 & \cellcolor{hurtB}16.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
