@@ -13,6 +13,12 @@ to pick the game engine's best-ranked move far more reliably. See
 
 ---
 
+### 🚀 Model Weights & Checkpoints
+
+Pre-trained weights and associated artifacts are available on Hugging Face:
+- 🤗 **Hugging Face Repository**: [BennyLin01/pact-rl-tetris](https://huggingface.co/BennyLin01/pact-rl-tetris)
+
+
 ## Results at a glance
 
 Frozen 324-item holdout, single-pass decoding, mean ± s.d. over seeds 17/18/19
