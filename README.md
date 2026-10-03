@@ -1,5 +1,5 @@
 # PACT — Pairwise-Anchored Calibrated Tuning
-
+[![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-pact--rl--tetris-blue)](https://huggingface.co/BennyLin01/pact-rl-tetris)
 A fine-tuning recipe that replaces **only the training objective, the batching
 and the probability head** of Nimble, a single-token typed-decision model. The
 prompt, the one-token answer codes and the saved adapter format are
