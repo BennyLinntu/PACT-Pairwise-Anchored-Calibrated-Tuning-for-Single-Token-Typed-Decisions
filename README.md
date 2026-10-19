@@ -405,7 +405,7 @@ If you find this repository, model, or code useful in your research, please cite
   journal={arXiv preprint arXiv:2609.35865},
   year={2026}
 }
-
+```
 
 ### Honest limitations
 
