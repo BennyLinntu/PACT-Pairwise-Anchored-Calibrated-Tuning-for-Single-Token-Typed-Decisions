@@ -407,7 +407,7 @@ If you find this repository, model, or code useful in your research, please cite
 }
 
 
-## Honest limitations
+### Honest limitations
 
 * No numbers are claimed without an ablation behind them. Each objective term
   is motivated and tested for correctness, but whether it helps *this* model
