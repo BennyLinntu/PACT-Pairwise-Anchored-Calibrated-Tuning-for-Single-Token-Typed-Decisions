@@ -17,7 +17,7 @@ to pick the game engine's best-ranked move far more reliably. See
 
 Pre-trained weights and associated artifacts are available on Hugging Face:
 - 🤗 **Hugging Face Repository**: [BennyLin01/pact-rl-tetris](https://huggingface.co/BennyLin01/pact-rl-tetris)
-
+- 📄 **arXiv Paper**: [arXiv:2609.35865](https://arxiv.org/abs/2609.35865)
 
 ## Results at a glance
 
@@ -393,6 +393,19 @@ RL/                           self-contained Tetris RL fine-tune: script, config
 The vendored `nimble/` and `data/` are exact copies of the checkout; a test
 fails if they ever drift, so a run can never be scored against a prompt
 different from the one it was trained with.
+
+### 📚 Citation
+
+If you find this repository, model, or code useful in your research, please cite our paper:
+
+```bibtex
+@article{lin2026pactrl,
+  title={PACT: Pairwise-Anchored-Calibrated-Tuning for Single-Token-Typed Decisions in Reinforcement Learning Tetris},
+  author={Lin, Yida and others},
+  journal={arXiv preprint arXiv:2609.35865},
+  year={2026}
+}
+
 
 ## Honest limitations
 
